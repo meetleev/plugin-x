@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class NetWorkState extends Component {
+public class NetworkStatus extends Component {
     public interface NetWorkStateResultListener {
         void onResult(int state);
     }
@@ -54,7 +54,17 @@ public class NetWorkState extends Component {
                 super.handleMessage(msg);
             }
         };
-        this.startThread();
+//        this.startThread();
+    }
+
+    public int getNetWorkType() {
+        boolean bHasNetWork = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            bHasNetWork = isHasNetWork();
+        else
+            bHasNetWork = isNetworkConnected() ; //|| !ping();
+        Log.d(Constants.TAG, "getNetWorkType bHasNetWork...->" + bHasNetWork);
+        return bHasNetWork ? 1 : 0;
     }
 
     private void startThread() {
@@ -227,7 +237,7 @@ public class NetWorkState extends Component {
         }
     }
 
-    //判断是否有网络连接
+    // 判断是否有网络连接
     private boolean isNetworkConnected() {
         ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
                 .getSystemService(mActivity.CONNECTIVITY_SERVICE);
@@ -238,7 +248,7 @@ public class NetWorkState extends Component {
         return false;
     }
 
-    //判断WIFI网络是否可用
+    // 判断WIFI网络是否可用
     private boolean isWifiConnected() {
         ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
                 .getSystemService(mActivity.CONNECTIVITY_SERVICE);
@@ -250,7 +260,7 @@ public class NetWorkState extends Component {
         return false;
     }
 
-    //判断MOBILE网络是否可用
+    // 判断MOBILE网络是否可用
     private boolean isMobileConnected() {
         ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
                 .getSystemService(mActivity.CONNECTIVITY_SERVICE);

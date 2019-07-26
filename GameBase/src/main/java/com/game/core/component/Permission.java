@@ -10,7 +10,7 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermissionComponent extends Component {
+public class Permission extends Component {
     private SparseArray<RequestPermissionCallback> permissionCallbackArray = new SparseArray<>();
 
     /**

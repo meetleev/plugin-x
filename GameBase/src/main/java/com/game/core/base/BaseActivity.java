@@ -8,11 +8,13 @@ import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.game.core.Constants;
 import com.game.core.component.AdsWrapper;
 import com.game.core.component.Component;
-import com.game.core.component.PermissionComponent;
+import com.game.core.component.NetworkStatus;
+import com.game.core.component.Permission;
 import com.game.core.component.SDKWrapperComp;
 import com.game.core.utils.NotificationCenter;
 
@@ -25,12 +27,12 @@ import java.util.ArrayList;
 public class BaseActivity extends Cocos2dxActivity {
     protected static ArrayList<Component> mComponents;
     protected static Handler mMainThreadHandler;
+    protected static Toast mToast;
 
     public BaseActivity() {
         super();
         mMainThreadHandler = new Handler();
         mComponents = new ArrayList<>();
-		addComponent(PermissionComponent.class);
     }
 
     @Override
@@ -109,11 +111,15 @@ public class BaseActivity extends Cocos2dxActivity {
     @Override
     public void onResume() {
         super.onResume();
+        for (Component component : mComponents)
+            component.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        for (Component component : mComponents)
+            component.onPause();
     }
 
     @Override
@@ -154,6 +160,8 @@ public class BaseActivity extends Cocos2dxActivity {
         // DO OTHER INITIALIZATION BELOW
     }
     protected void onLoad() {
+        addComponent(Permission.class);
+        addComponent(NetworkStatus.class);
     }
     @Override
     protected void onNewIntent(Intent intent) {
@@ -203,7 +211,7 @@ public class BaseActivity extends Cocos2dxActivity {
     }
 
     public void nativeCallJS(Object... objects) {
-        String call = "AndroidCallJS(";
+        String call = "NativeCallJS(";
         for (Object obj : objects) {
             if (obj instanceof String) {
                 call += "'" + obj + "',";
@@ -230,5 +238,11 @@ public class BaseActivity extends Cocos2dxActivity {
         DisplayMetrics dm = new DisplayMetrics();
         this.getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm;
+    }
+    public void showToast(String msg) {
+        Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+    public void showToast(String msg, int duration) {
+        Toast.makeText(this.getApplicationContext(), msg, duration).show();
     }
 }

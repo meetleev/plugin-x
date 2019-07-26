@@ -10,7 +10,8 @@ interface ComponentInterface {
     void onLoad();
 
     void onDestroy();
-
+    void onPause();
+    void onResume();
     void onActivityResult(int requestCode, int resultCode, Intent data);
 
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
@@ -40,6 +41,16 @@ public class Component implements ComponentInterface {
     }
     @Override
     public void onDestroy() {
+
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onResume() {
 
     }
 
