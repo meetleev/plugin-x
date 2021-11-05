@@ -1,24 +1,37 @@
 package com.game.core.component;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
+
+
+import androidx.annotation.NonNull;
 
 import com.game.core.base.BaseActivity;
 
-
-interface ComponentInterface {
+interface IComponent {
     void onLoad();
 
     void onDestroy();
+
     void onPause();
+
     void onResume();
+
     void onActivityResult(int requestCode, int resultCode, Intent data);
 
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
 }
 
-public class Component implements ComponentInterface {
+public class Component implements IComponent {
     protected BaseActivity mActivity;
+    protected boolean bDebug = false;
+
+    public void setDebug(boolean bDebug) {
+        this.bDebug = bDebug;
+    }
+
+    public boolean getDebug() {
+        return bDebug;
+    }
 
     public Component() {
     }
@@ -39,6 +52,7 @@ public class Component implements ComponentInterface {
     public void onLoad() {
 
     }
+
     @Override
     public void onDestroy() {
 

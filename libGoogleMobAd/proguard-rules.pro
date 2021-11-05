@@ -19,7 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
-# Proguard GameBase for release
--keep public class com.game.core.ScriptCallJavaBridge { *; }
--dontwarn com.game.**

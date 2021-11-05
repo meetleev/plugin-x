@@ -3,15 +3,14 @@ package com.game.core.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// @author LeeWei 消息中心
+// @author Lee 消息中心
 // ----------------------------------------NotificationObserver-----------------------------
 class Observer {
     private Object mTarget;
-    public static final String ObserverName = "Observer";
     private HashMap<String, ObserverListener> mObserverListenerMap;
     private static final String EVENT_NAME_PREFIX = "$";
 
-    public Observer(Object target, ObserverListener listener, String name) {
+    public Observer(String name, ObserverListener listener, Object target) {
         name = (null == name || name.isEmpty()) ? "" : name;
         this.mTarget = target;
         if (null == this.mObserverListenerMap)
@@ -58,18 +57,14 @@ public class NotificationCenter {
     }
 
     //  注册事件
-    public void registerObserver(Object target, ObserverListener listener, String eventName) {
+    public void registerObserver(String eventName, ObserverListener listener, Object target) {
         Observer observer = this.observerExisted(target);
         if (null != observer && null != observer.getListener(eventName)) return;
         if (null == observer) {
-            observer = new Observer(target, listener, eventName);
+            observer = new Observer(eventName, listener, target);
             this.mObservers.add(observer);
         } else
             observer.addListener(eventName, listener);
-    }
-
-    public void registerObserver(Object target, ObserverListener listener) {
-        this.registerObserver(target, listener, Observer.ObserverName);
     }
 
     private Observer observerExisted(Object target) {
@@ -87,11 +82,6 @@ public class NotificationCenter {
             ObserverListener listener = observer.getListener(eventName);
             if (null != listener)
                 listener.onMessage(observer.getTarget(), eventName, objects);
-            else {
-                listener = observer.getListener(Observer.ObserverName);
-                if (null != listener)
-                    listener.onMessage(observer.getTarget(), eventName, objects);
-            }
         }
     }
 

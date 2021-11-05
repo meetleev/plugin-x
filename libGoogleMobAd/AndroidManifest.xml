@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.game.googleMobAd">
+
+    <application>
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+        <!--<meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713" />
+        &lt;!&ndash; Sample AdMob RewardVideo ID: ca-app-pub-3940256099942544/5224354917 &ndash;&gt;
+        <meta-data
+            android:name="GP_REWARD_VIDEO_AD_ID"
+            android:value="ca-app-pub-3940256099942544/5224354917" />
+        &lt;!&ndash; Sample AdMob RewardVideo ID: ca-app-pub-3940256099942544/1033173712 &ndash;&gt;
+        <meta-data
+            android:name="GP_INTERSTITIAL_AD_ID"
+            android:value="ca-app-pub-3940256099942544/1033173712" />-->
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9846530703102193~5656128770" />
+
+        <meta-data
+            android:name="GP_REWARD_VIDEO_AD_ID"
+            android:value="ca-app-pub-9846530703102193/7516005350" />
+    </application>
+</manifest>

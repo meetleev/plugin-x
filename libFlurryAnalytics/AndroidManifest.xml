@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.game.flurry">
+
+    <application>
+        <meta-data
+            android:name="FLURRY_API_KEY"
+            android:value="QW2XZ6B4NTW4R6S3JM26" />
+    </application>
+
+</manifest>

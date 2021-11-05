@@ -1,33 +1,50 @@
 package com.game.core.base;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.cocos.lib.CocosActivity;
+import com.cocos.lib.CocosHelper;
+import com.cocos.lib.CocosJavascriptJavaBridge;
 import com.game.core.Constants;
-import com.game.core.component.AdsWrapper;
 import com.game.core.component.Component;
 import com.game.core.component.NetworkStatus;
 import com.game.core.component.Permission;
-import com.game.core.component.SDKWrapperComp;
+import com.game.core.utils.Function;
 import com.game.core.utils.NotificationCenter;
-
-import org.cocos2dx.lib.Cocos2dxActivity;
-import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
-import org.cocos2dx.lib.Cocos2dxJavascriptJavaBridge;
+import com.game.core.utils.ObserverListener;
 
 import java.util.ArrayList;
 
-public class BaseActivity extends Cocos2dxActivity {
+public class BaseActivity extends CocosActivity {
     protected static ArrayList<Component> mComponents;
     protected static Handler mMainThreadHandler;
-    protected static Toast mToast;
+    protected static ApplicationInfo mApplicationInfo;
+
+    protected ObserverListener mObserverListener = new ObserverListener() {
+        @Override
+        public void onMessage(Object target, String eventName, Object... objects) {
+            Log.d(Constants.TAG, "onMessage " + eventName);
+            if (target.getClass().getSuperclass().equals(BaseActivity.class)) {
+                if (eventName.equals(Constants.SHOW_TOAST)) {
+                    Log.d(Constants.TAG, "showToast");
+                    final String msg = (String) objects[0];
+                    final int duration = 1 < objects.length ? (int) objects[1] : Toast.LENGTH_SHORT;
+                    showToast(msg, duration);
+                }
+            }
+        }
+    };
+
 
     public BaseActivity() {
         super();
@@ -35,19 +52,6 @@ public class BaseActivity extends Cocos2dxActivity {
         mComponents = new ArrayList<>();
     }
 
-    @Override
-    public Cocos2dxGLSurfaceView onCreateView() {
-        Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
-        // TestCpp should create stencil buffer
-        glSurfaceView.setEGLConfigChooser(5, 6, 5, 0, 16, 8);
-
-        return glSurfaceView;
-    }
-
-//    @Override
-//    public void finish() {
-//        super.finish();
-//    }
 
     public void runOnMainThread(Runnable r) {
         if (null != mMainThreadHandler) {
@@ -90,7 +94,8 @@ public class BaseActivity extends Cocos2dxActivity {
     }
 
     protected <T extends Component> T addComponent(Class cls) {
-        if (null != cls && (cls.getSuperclass().equals(Component.class) || cls.getSuperclass().equals(SDKWrapperComp.class)  || cls.getSuperclass().equals(AdsWrapper.class))) {
+        if (null != cls && (cls.getSuperclass().equals(Component.class)
+                || cls.getSuperclass().getSuperclass().equals(Component.class))) {
             try {
                 return addComponent((T) cls.newInstance());
             } catch (Exception e) {
@@ -109,14 +114,14 @@ public class BaseActivity extends Cocos2dxActivity {
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         for (Component component : mComponents)
             component.onResume();
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         for (Component component : mComponents)
             component.onPause();
@@ -159,10 +164,13 @@ public class BaseActivity extends Cocos2dxActivity {
         onLoad();
         // DO OTHER INITIALIZATION BELOW
     }
+
     protected void onLoad() {
+        NotificationCenter.getInstance().registerObserver(Constants.SHOW_TOAST, this.mObserverListener, this);
         addComponent(Permission.class);
         addComponent(NetworkStatus.class);
     }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -185,9 +193,8 @@ public class BaseActivity extends Cocos2dxActivity {
     }
 
 
-    @Override
     public void runOnGLThread(Runnable runnable) {
-        super.runOnGLThread(runnable);
+        CocosHelper.runOnGameThread(runnable);
     }
 
     @Override
@@ -210,28 +217,27 @@ public class BaseActivity extends Cocos2dxActivity {
         super.onStart();
     }
 
-    public void nativeCallJS(Object... objects) {
-        String call = "NativeCallJS(";
+    public void nativeCallScript(Object... objects) {
+        StringBuilder call = new StringBuilder("aft.eventManager.emit(");
         for (Object obj : objects) {
             if (obj instanceof String) {
-                call += "'" + obj + "',";
+                call.append("'").append(obj).append("',");
             } else if (obj.getClass().isArray()) {
                 Log.d(Constants.TAG, "Array not support->" + obj);
             } else {
-                call += obj + ",";
+                call.append(obj).append(",");
             }
         }
-        call = call.substring(0, call.length() - 1) + ")";
-        Log.d(Constants.TAG, "nativeCallJS->" + call);
+        call = new StringBuilder(call.substring(0, call.length() - 1) + ")");
+        Log.d(Constants.TAG, "nativeCallScript->" + call);
 
-        final String call_ = call;
+        final String call_ = call.toString();
         this.runOnGLThread(new Runnable() {
             @Override
             public void run() {
-                Cocos2dxJavascriptJavaBridge.evalString(call_);
+                CocosJavascriptJavaBridge.evalString(call_);
             }
         });
-
     }
 
     public DisplayMetrics getDisplayMetrics() {
@@ -239,10 +245,33 @@ public class BaseActivity extends Cocos2dxActivity {
         this.getWindowManager().getDefaultDisplay().getMetrics(dm);
         return dm;
     }
+
     public void showToast(String msg) {
-        Toast.makeText(this.getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        final String msgF = msg;
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), msgF, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
     public void showToast(String msg, int duration) {
-        Toast.makeText(this.getApplicationContext(), msg, duration).show();
+        final String msgF = msg;
+        final int durationF = duration;
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), msgF, durationF).show();
+            }
+        });
+    }
+
+    public String getMetaFromApplication(String key) {
+        return getMetaFromApplication(key, null);
+    }
+
+    public String getMetaFromApplication(String key, String defaultValue) {
+        return Function.getMetaFromApplication(this, key, defaultValue);
     }
 }
