@@ -31,12 +31,17 @@ public class GoogleMobAd extends AdWrapper implements InterfaceAd {
     @Override
     protected void initSDK() {
         super.initSDK();
-        MobileAds.initialize(mActivity, new OnInitializationCompleteListener() {
+        mActivity.runOnMainThread(new Runnable() {
             @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                Log.d(TAG, "onInitializationComplete");
-                preloadRewardedAd();
-                preloadInterstitialAd();
+            public void run() {
+                MobileAds.initialize(mActivity, new OnInitializationCompleteListener() {
+                    @Override
+                    public void onInitializationComplete(InitializationStatus initializationStatus) {
+                        Log.d(TAG, "onInitializationComplete");
+                        preloadRewardedAd();
+                        preloadInterstitialAd();
+                    }
+                });
             }
         });
     }
@@ -128,7 +133,12 @@ public class GoogleMobAd extends AdWrapper implements InterfaceAd {
             }
         } else {
             onShowRewardVideoAdResult(false, rewardAdState.ordinal());
-            preloadRewardedAd();
+            mActivity.runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    preloadRewardedAd();
+                }
+            });
         }
     }
 
@@ -226,7 +236,12 @@ public class GoogleMobAd extends AdWrapper implements InterfaceAd {
             }
         } else {
             onShowInterstitialAdResult(false, interstitialAdState.ordinal());
-            preloadInterstitialAd();
+            mActivity.runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    preloadInterstitialAd();
+                }
+            });
         }
     }
 

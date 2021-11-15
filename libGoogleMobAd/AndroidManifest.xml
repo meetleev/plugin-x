@@ -23,5 +23,8 @@
         <meta-data
             android:name="GP_REWARD_VIDEO_AD_ID"
             android:value="ca-app-pub-9846530703102193/7516005350" />
+        <meta-data
+            android:name="FLURRY_CHANNEL"
+            android:value="GP" />
     </application>
 </manifest>
