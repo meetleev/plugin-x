@@ -7,7 +7,7 @@ import com.game.core.Constants;
 import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
 
-public class AdWrapper extends Component {
+public class AdsWrapper extends PluginWrapper {
     public enum AdState {
         None,
         Loading,
@@ -27,11 +27,13 @@ public class AdWrapper extends Component {
 
     protected AdState rewardAdState = AdState.None;
     protected AdState interstitialAdState = AdState.None;
+    protected AdState bannerAdState = AdState.None;
+
     protected ObserverListener mObserverListener = new ObserverListener() {
         @Override
         public void onMessage(Object target, String eventName, Object... objects) {
             Log.d(Constants.TAG, "onMessage " + eventName);
-            if (target.getClass().getSuperclass().equals(AdWrapper.class)) {
+            if (target.getClass().getSuperclass().equals(AdsWrapper.class)) {
                 String sdkName = (String) objects[0];
                 Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + target.getClass().getSimpleName());
                 if (!target.getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
@@ -71,19 +73,15 @@ public class AdWrapper extends Component {
         NotificationCenter.getInstance().registerObserver(Constants.SHOW_INTERSTITIAL_AD, this.mObserverListener, this);
         NotificationCenter.getInstance().registerObserver(Constants.FLOAT_AD_VISIBLE, this.mObserverListener, this);
         NotificationCenter.getInstance().registerObserver(Constants.BANNER_AD_VISIBLE, this.mObserverListener, this);
-        this.initSDK();
-    }
-
-    protected void initSDK() {
-    }
-
-    public void exitSDK() {
     }
 
     public void preloadRewardedAd() {
     }
 
     public void showRewardedVideoAd() {
+    }
+
+    protected void loadBannerAd() {
     }
 
     public void showBannerAd() {
@@ -102,6 +100,13 @@ public class AdWrapper extends Component {
     }
 
     public void hideFloatAd() {
+    }
+
+    protected void onShowRewardVideoAdResult(boolean bSuccess, int errCode) {
+    }
+
+
+    protected void onShowInterstitialAdResult(boolean bSuccess, int errCode) {
     }
 
 }

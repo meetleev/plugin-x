@@ -26,4 +26,12 @@ public class ScriptCallJavaBridge {
     public static void showToast(String msg) {
         NotificationCenter.getInstance().postNotification(Constants.SHOW_TOAST, msg);
     }
+
+    public static void paymentWithProductId(String sdkName, String productId) {
+        ScriptCallJavaBridge.paymentWithProductId(sdkName, productId, true);
+    }
+
+    public static void paymentWithProductId(String sdkName, String productId, boolean bAutoConsume) {
+        NotificationCenter.getInstance().postNotification(Constants.PAYMENT_PRODUCT, sdkName, productId, bAutoConsume);
+    }
 }

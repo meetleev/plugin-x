@@ -1,7 +1,6 @@
 package com.game.core.base;
 
 import android.app.Application;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.game.core.Constants;

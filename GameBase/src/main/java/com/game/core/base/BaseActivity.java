@@ -1,7 +1,6 @@
 package com.game.core.base;
 
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +18,7 @@ import com.game.core.Constants;
 import com.game.core.component.Component;
 import com.game.core.component.NetworkStatus;
 import com.game.core.component.Permission;
+import com.game.core.component.PluginWrapper;
 import com.game.core.utils.Function;
 import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
@@ -28,7 +28,6 @@ import java.util.ArrayList;
 public class BaseActivity extends CocosActivity {
     protected static ArrayList<Component> mComponents;
     protected static Handler mMainThreadHandler;
-    protected static ApplicationInfo mApplicationInfo;
 
     protected ObserverListener mObserverListener = new ObserverListener() {
         @Override
@@ -56,6 +55,12 @@ public class BaseActivity extends CocosActivity {
     public void runOnMainThread(Runnable r) {
         if (null != mMainThreadHandler) {
             mMainThreadHandler.post(r);
+        }
+    }
+
+    public void runOnMainThread(Runnable r, long delayMillis) {
+        if (null != mMainThreadHandler) {
+            mMainThreadHandler.postDelayed(r, delayMillis);
         }
     }
 
@@ -95,7 +100,8 @@ public class BaseActivity extends CocosActivity {
 
     protected <T extends Component> T addComponent(Class cls) {
         if (null != cls && (cls.getSuperclass().equals(Component.class)
-                || cls.getSuperclass().getSuperclass().equals(Component.class))) {
+                || cls.getSuperclass().getSuperclass().equals(Component.class))
+                || cls.getSuperclass().getSuperclass().equals(PluginWrapper.class)) {
             try {
                 return addComponent((T) cls.newInstance());
             } catch (Exception e) {

@@ -1,14 +1,22 @@
 package com.game.googleMobAd;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
 import com.game.core.Constants;
-import com.game.core.component.AdWrapper;
-import com.game.core.component.InterfaceAd;
+import com.game.core.component.AdsWrapper;
 import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
@@ -21,12 +29,14 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
-public class GoogleMobAd extends AdWrapper implements InterfaceAd {
+public class GoogleMobAd extends AdsWrapper  {
     private static final String META_GP_REWARD_VIDEO_AD_ID = "GP_REWARD_VIDEO_AD_ID";
     private static final String META_GP_INTERSTITIAL_AD_ID = "GP_INTERSTITIAL_AD_ID";
+    private static final String META_GP_BANNER_AD_ID = "GP_BANNER_AD_ID";
     private static final String TAG = "GoogleMobAd";
     private RewardedAd mRewardedAd;
     private InterstitialAd mInterstitialAd;
+    private AdView mBannerAdView;
 
     @Override
     protected void initSDK() {
@@ -143,12 +153,12 @@ public class GoogleMobAd extends AdWrapper implements InterfaceAd {
     }
 
     @Override
-    public void onShowRewardVideoAdResult(boolean bSuccess, int errCode) {
+    protected void onShowRewardVideoAdResult(boolean bSuccess, int errCode) {
         mActivity.nativeCallScript(ON_SHOW_REWARD_VIDEO_AD_RESULT, bSuccess, errCode);
     }
 
     @Override
-    public void onShowInterstitialAdResult(boolean bSuccess, int errCode) {
+    protected void onShowInterstitialAdResult(boolean bSuccess, int errCode) {
 
     }
 
@@ -245,12 +255,149 @@ public class GoogleMobAd extends AdWrapper implements InterfaceAd {
         }
     }
 
+    @Override
+    protected void loadBannerAd() {
+        super.loadBannerAd();
+        mActivity.runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
+                    Log.d(TAG, "Banner loading or loaded");
+                    return;
+                }
+                String adId = getAdUnitId(AdType.Banner);
+                if (null == adId) {
+                    return;
+                }
+                bannerAdState = AdState.Loading;
+
+                if (null == mBannerAdView) {
+                    LinearLayout layout = new LinearLayout(mActivity);
+                    layout.setGravity(LinearLayout.VERTICAL);
+                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                    params.gravity = Gravity.BOTTOM;
+                    mActivity.addContentView(layout, params);
+
+                    mBannerAdView = new AdView(mActivity);
+                    mBannerAdView.setAdUnitId(adId);
+                    mBannerAdView.setAdSize(getAdSize());
+
+                    layout.addView(mBannerAdView);
+
+
+                    AdRequest adRequest = new AdRequest.Builder()
+                            .build();
+                    mBannerAdView.loadAd(adRequest);
+
+                    mBannerAdView.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            Log.d(TAG, "BannerAd was closed.");
+                            bannerAdState = AdState.None;
+                        }
+
+                        @Override
+                        public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                            super.onAdFailedToLoad(loadAdError);
+                            Log.d(TAG, "BannerAd was adFailedToLoad.");
+                            bannerAdState = AdState.None;
+                        }
+
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                            Log.d(TAG, "BannerAd was adOpened.");
+                        }
+
+                        @Override
+                        public void onAdLoaded() {
+                            super.onAdLoaded();
+                            Log.d(TAG, "BannerAd was adLoaded.");
+                            bannerAdState = AdState.Loaded;
+                        }
+
+                        @Override
+                        public void onAdClicked() {
+                            super.onAdClicked();
+                            Log.d(TAG, "BannerAd was adClicked.");
+                        }
+
+                        @Override
+                        public void onAdImpression() {
+                            super.onAdImpression();
+                            Log.d(TAG, "BannerAd was adImpression.");
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private AdSize getAdSize() {
+        DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
+        float widthPixels = displayMetrics.widthPixels;
+        float density = displayMetrics.density;
+
+        int adWidth = (int) (widthPixels / density);
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(mActivity, adWidth);
+    }
+
+    @Override
+    public void showBannerAd() {
+        super.showBannerAd();
+        if (AdState.Loaded == bannerAdState) {
+            if (null != mBannerAdView) {
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
+                        if (null != mViewGroup)
+                            mViewGroup.setVisibility(View.VISIBLE);
+                    }
+                });
+            } else {
+                loadBannerAd();
+            }
+        } else {
+            if (null == mBannerAdView) {
+                loadBannerAd();
+            } else {
+                mActivity.runOnMainThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AdRequest adRequest = new AdRequest.Builder()
+                                .build();
+                        mBannerAdView.loadAd(adRequest);
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    public void hideBannerAd() {
+        super.hideBannerAd();
+        if (null != mBannerAdView) {
+            mActivity.runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
+                    if (null != mViewGroup)
+                        mViewGroup.setVisibility(View.INVISIBLE);
+                }
+            });
+        }
+    }
+
     private String getAdUnitId(AdType adType) {
         String metaKey = null;
         if (AdType.RewardedVideo == adType) {
             metaKey = META_GP_REWARD_VIDEO_AD_ID;
         } else if (AdType.Interstitial == adType) {
             metaKey = META_GP_INTERSTITIAL_AD_ID;
+        } else if (AdType.Banner == adType) {
+            metaKey = META_GP_BANNER_AD_ID;
         }
         String adId = mActivity.getMetaFromApplication(metaKey);
         if (null == adId || adId.isEmpty()) {

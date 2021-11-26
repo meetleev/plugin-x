@@ -6,7 +6,7 @@ import com.game.core.Constants;
 import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
 
-public class AnalyticsWrapper extends Component {
+public class AnalyticsWrapper extends PluginWrapper {
     protected ObserverListener mObserverListener = new ObserverListener() {
         @Override
         public void onMessage(Object target, String eventName, Object... objects) {
