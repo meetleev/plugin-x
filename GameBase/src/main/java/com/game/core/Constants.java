@@ -10,7 +10,6 @@ public class Constants {
     public static final String FLOAT_AD_VISIBLE = "FLOAT_AD_VISIBLE";
     public static final String LOG_EVENT = "LOG_EVENT";
     public static final String PAYMENT_PRODUCT = "PAYMENT_PRODUCT";
-    public static final String QUERY_PRODUCT_DETAILS = "QUERY_PRODUCT_DETAILS";
     public static final String CONFIG_DEV_INFO = "CONFIG_DEV_INFO";
     public static final String META_ANALYTICS_CHANNEL = "ANALYTICS_CHANNEL";
     public static final String ANALYTICS_CHANNEL = "Channel";

@@ -226,6 +226,7 @@ public class BaseActivity extends CocosActivity {
     public void nativeCallScript(Object... objects) {
         StringBuilder call = new StringBuilder("aft.eventManager.emit(");
         for (Object obj : objects) {
+            if (null == obj) continue;
             if (obj instanceof String) {
                 call.append("'").append(obj).append("',");
             } else if (obj.getClass().isArray()) {
@@ -235,7 +236,7 @@ public class BaseActivity extends CocosActivity {
             }
         }
         call = new StringBuilder(call.substring(0, call.length() - 1) + ")");
-        Log.d(Constants.TAG, "nativeCallScript->" + call);
+        Log.d(Constants.TAG, "nativeCallScript ->[ " + call + " ]");
 
         final String call_ = call.toString();
         this.runOnGLThread(new Runnable() {
