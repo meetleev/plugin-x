@@ -59,7 +59,6 @@ public class IAPWrapper extends PluginWrapper {
     public void onLoad() {
         super.onLoad();
         readPayConfig();
-        ;
         NotificationCenter.getInstance().registerObserver(Constants.PAYMENT_PRODUCT, mObserverListener, this);
     }
 

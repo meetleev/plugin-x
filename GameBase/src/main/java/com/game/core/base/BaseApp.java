@@ -1,7 +1,10 @@
 package com.game.core.base;
 
 import android.app.Application;
+import android.content.Context;
 import android.util.Log;
+
+import androidx.multidex.MultiDex;
 
 import com.game.core.Constants;
 import com.game.core.component.AppComponent;
@@ -15,6 +18,12 @@ public class BaseApp extends Application {
     public BaseApp() {
         super();
         mComponents = new ArrayList<>();
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     @Override

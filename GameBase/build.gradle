@@ -24,4 +24,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(path: ':libcocos')
     implementation 'androidx.core:core:1.5.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
 }
