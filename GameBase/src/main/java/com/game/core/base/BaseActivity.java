@@ -16,7 +16,6 @@ import com.cocos.lib.CocosHelper;
 import com.cocos.lib.CocosJavascriptJavaBridge;
 import com.game.core.Constants;
 import com.game.core.component.Component;
-import com.game.core.component.NetworkStatus;
 import com.game.core.component.Permission;
 import com.game.core.component.PluginWrapper;
 import com.game.core.utils.Function;
@@ -174,7 +173,7 @@ public class BaseActivity extends CocosActivity {
     protected void onLoad() {
         NotificationCenter.getInstance().registerObserver(Constants.SHOW_TOAST, this.mObserverListener, this);
         addComponent(Permission.class);
-        addComponent(NetworkStatus.class);
+//        addComponent(NetworkStatus.class);
     }
 
     @Override
