@@ -7,6 +7,10 @@ public class ScriptCallJavaBridge {
         NotificationCenter.getInstance().postNotification(Constants.SHOW_REWARD_VIDEO_AD, sdkName);
     }
 
+    public static void showRewardedInterstitialAd(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.SHOW_REWARD_INTERSTITIAL_AD, sdkName);
+    }
+
     public static void showInterstitialAd(String sdkName) {
         NotificationCenter.getInstance().postNotification(Constants.SHOW_INTERSTITIAL_AD, sdkName);
     }

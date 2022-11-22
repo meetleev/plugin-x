@@ -2,34 +2,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.game.googleMobAd">
 
-    <uses-permission android:name="android.permission.INTERNET" />
     <application>
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
-        <!--<meta-data
+        <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~3347511713" />
         <meta-data
             android:name="GP_REWARD_VIDEO_AD_ID"
             android:value="ca-app-pub-3940256099942544/5224354917" />
         <meta-data
+            android:name="GP_REWARD_INTERSTITIAL_AD_ID"
+            android:value="ca-app-pub-3940256099942544/5354046379" />
+        <meta-data
             android:name="GP_INTERSTITIAL_AD_ID"
             android:value="ca-app-pub-3940256099942544/1033173712" />
         <meta-data
             android:name="GP_BANNER_AD_ID"
-            android:value="ca-app-pub-3940256099942544/6300978111" />-->
-
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9846530703102193~5656128770" />
-
-        <meta-data
-            android:name="GP_REWARD_VIDEO_AD_ID"
-            android:value="ca-app-pub-9846530703102193/7516005350" />
-        <meta-data
-            android:name="GP_BANNER_AD_ID"
-            android:value="ca-app-pub-9846530703102193/9015942798" />
+            android:value="ca-app-pub-3940256099942544/6300978111" />
         <meta-data
             android:name="ANALYTICS_CHANNEL"
             android:value="GP" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

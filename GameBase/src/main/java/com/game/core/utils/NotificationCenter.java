@@ -45,7 +45,7 @@ class Observer {
 
 //  ---------------------------------------NotificationCenter---------------------------------------
 public class NotificationCenter {
-    private ArrayList<Observer> mObservers;
+    private final ArrayList<Observer> mObservers;
     private static final NotificationCenter mNotificationCenter = new NotificationCenter();
 
     public NotificationCenter() {
