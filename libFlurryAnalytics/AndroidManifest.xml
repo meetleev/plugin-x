@@ -5,7 +5,7 @@
     <application>
         <meta-data
             android:name="FLURRY_API_KEY"
-            android:value="QW2XZ6B4NTW4R6S3JM26" />
+            android:value="FLURRY_API_KEY" />
     </application>
 
 </manifest>

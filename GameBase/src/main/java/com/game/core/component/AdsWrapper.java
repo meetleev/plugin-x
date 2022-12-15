@@ -27,6 +27,7 @@ public class AdsWrapper extends PluginWrapper {
 
     protected final String ON_SHOW_AD_SUCCESS = "onShowAdSuccess";
     protected final String ON_SHOW_AD_FAILED = "onShowAdFailed";
+    protected final String UNIT_AD_EMPTY = "the unit ad was emptied";
     protected final String SPLASH_PLAY_COMPLETE = "SPLASH_PLAY_COMPLETE";
 
     protected AdState rewardAdState = AdState.None;
@@ -35,10 +36,10 @@ public class AdsWrapper extends PluginWrapper {
     protected AdState bannerAdState = AdState.None;
 
     protected ObserverListener mObserverListener = (Object target, String eventName, Object... objects) -> {
-        Log.d(Constants.TAG, "onMessage " + eventName);
+        Log.d(Constants.TAG, "ads onMessage " + eventName);
         if (Objects.equals(target.getClass().getSuperclass(), AdsWrapper.class)) {
             String sdkName = (String) objects[0];
-            Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + target.getClass().getSimpleName());
+            Log.d(Constants.TAG, "ads onMessage sdkName " + sdkName + " clsName " + target.getClass().getSimpleName());
             if (!target.getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
                 return;
             switch (eventName) {
@@ -88,7 +89,7 @@ public class AdsWrapper extends PluginWrapper {
     public void showRewardedVideoAd() {
     }
 
-    protected void loadBannerAd() {
+    protected void loadBannerAd(boolean autoShow) {
     }
 
     public void showBannerAd() {
@@ -101,6 +102,7 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     public void showRewardedInterstitialAd() {
+        this.onShowAdFailed(AdType.RewardedInterstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
     }
 
     protected void preloadInterstitialAd() {
@@ -116,8 +118,14 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     protected void onShowAdSuccess(AdType adType) {
+        mActivity.nativeCallScript(ON_SHOW_AD_SUCCESS, adType.ordinal());
+    }
+
+    protected void onShowAdFailed(AdType adType, int errCode, String errMsg) {
+        mActivity.nativeCallScript(ON_SHOW_AD_FAILED, adType.ordinal(), errCode, errMsg);
     }
 
     protected void onShowAdFailed(AdType adType, int errCode) {
+        mActivity.nativeCallScript(ON_SHOW_AD_FAILED, adType.ordinal(), errCode, null);
     }
 }

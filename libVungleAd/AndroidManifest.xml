@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.game.vungleAd">
+
+    <application>
+        <meta-data
+            android:name="VUNGLE_APP_ID"
+            android:value="VUNGLE_APP_ID" />
+        <meta-data
+            android:name="VUNGLE_REWARD_VIDEO_AD_ID"
+            android:value="REWARD-id" />
+        <meta-data
+            android:name="VUNGLE_REWARD_INTERSTITIAL_AD_ID"
+            android:value="REWARD_INTERSTITIAL-id" />
+        <meta-data
+            android:name="VUNGLE_INTERSTITIAL_AD_ID"
+            android:value="INTERSTITIAL-id" />
+        <meta-data
+            android:name="VUNGLE_BANNER_AD_ID"
+            android:value="BANNER-id" />
+    </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

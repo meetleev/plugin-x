@@ -19,18 +19,12 @@ public class FlurryApp extends AppComponent {
         String channelName = mApp.getMetaFromApplication(Constants.META_ANALYTICS_CHANNEL, "Official");
         Log.d(Constants.TAG, "channel: " + channelName);
         new FlurryAgent.Builder()
-                .withDataSaleOptOut(false) //CCPA - the default value is false
+                .withDataSaleOptOut(false) // CCPA - the default value is false
                 .withCaptureUncaughtExceptions(true)
                 .withIncludeBackgroundSessionsInMetrics(true)
                 .withLogLevel(Log.VERBOSE)
                 .withPerformanceMetrics(FlurryPerformance.ALL)
-                /*.withListener(new FlurryAgentListener() {
-                    @Override
-                    public void onSessionStarted() {
-                        FlurryAgent.UserProperties.set(FLURRY_CHANNEL, channelName);
-                    }
-                })*/
+                .withListener(() -> FlurryAgent.UserProperties.set(Constants.ANALYTICS_CHANNEL, channelName))
                 .build(mApp, appKey);
-        FlurryAgent.UserProperties.set(Constants.ANALYTICS_CHANNEL, channelName);
     }
 }

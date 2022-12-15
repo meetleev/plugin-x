@@ -4,7 +4,6 @@ plugins {
 
 android {
     compileSdkVersion 33
-    buildToolsVersion "30.0.3"
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -15,7 +14,7 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
@@ -36,7 +35,7 @@ android {
 }
 
 dependencies {
-    // Required for Flurry Analytics integration
-    implementation 'com.flurry.android:analytics:14.0.0@aar'
+    // Required for add Google admob ad
+    implementation 'com.vungle:publisher-sdk-android:6.12.0'
     api project(path: ':libGameBase')
 }
