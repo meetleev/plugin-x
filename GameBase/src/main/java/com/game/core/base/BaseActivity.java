@@ -23,22 +23,20 @@ import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class BaseActivity extends CocosActivity {
-    protected static ArrayList<Component> mComponents;
-    protected static Handler mMainThreadHandler;
+    protected ArrayList<Component> mComponents;
+    protected Handler mMainThreadHandler;
 
-    protected ObserverListener mObserverListener = new ObserverListener() {
-        @Override
-        public void onMessage(Object target, String eventName, Object... objects) {
-            Log.d(Constants.TAG, "onMessage " + eventName);
-            if (target.getClass().getSuperclass().equals(BaseActivity.class)) {
-                if (eventName.equals(Constants.SHOW_TOAST)) {
-                    Log.d(Constants.TAG, "showToast");
-                    final String msg = (String) objects[0];
-                    final int duration = 1 < objects.length ? (int) objects[1] : Toast.LENGTH_SHORT;
-                    showToast(msg, duration);
-                }
+    protected ObserverListener mObserverListener = (target, eventName, objects) -> {
+        Log.d(Constants.TAG, "onMessage " + eventName);
+        if (Objects.equals(target.getClass().getSuperclass(), BaseActivity.class)) {
+            if (eventName.equals(Constants.SHOW_TOAST)) {
+                Log.d(Constants.TAG, "showToast");
+                final String msg = (String) objects[0];
+                final int duration = 1 < objects.length ? (int) objects[1] : Toast.LENGTH_SHORT;
+                showToast(msg, duration);
             }
         }
     };
@@ -98,9 +96,9 @@ public class BaseActivity extends CocosActivity {
     }
 
     protected <T extends Component> T addComponent(Class cls) {
-        if (null != cls && (cls.getSuperclass().equals(Component.class)
-                || cls.getSuperclass().getSuperclass().equals(Component.class))
-                || cls.getSuperclass().getSuperclass().equals(PluginWrapper.class)) {
+        if (null != cls && (Objects.equals(cls.getSuperclass(), Component.class)
+                || Objects.equals(cls.getSuperclass().getSuperclass(), Component.class))
+                || Objects.equals(cls.getSuperclass().getSuperclass(), PluginWrapper.class)) {
             try {
                 return addComponent((T) cls.newInstance());
             } catch (Exception e) {
@@ -223,7 +221,7 @@ public class BaseActivity extends CocosActivity {
     }
 
     public void nativeCallScript(Object... objects) {
-        StringBuilder call = new StringBuilder("aft.eventManager.emit(");
+        StringBuilder call = new StringBuilder("ccx.eventManager.emit(");
         for (Object obj : objects) {
             if (null == obj) continue;
             if (obj instanceof String) {
@@ -238,12 +236,7 @@ public class BaseActivity extends CocosActivity {
         Log.d(Constants.TAG, "nativeCallScript ->[ " + call + " ]");
 
         final String call_ = call.toString();
-        this.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                CocosJavascriptJavaBridge.evalString(call_);
-            }
-        });
+        this.runOnGLThread(() -> CocosJavascriptJavaBridge.evalString(call_));
     }
 
     public DisplayMetrics getDisplayMetrics() {
@@ -254,23 +247,13 @@ public class BaseActivity extends CocosActivity {
 
     public void showToast(String msg) {
         final String msgF = msg;
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), msgF, Toast.LENGTH_SHORT).show();
-            }
-        });
+        runOnMainThread(() -> Toast.makeText(getApplicationContext(), msgF, Toast.LENGTH_SHORT).show());
     }
 
     public void showToast(String msg, int duration) {
         final String msgF = msg;
         final int durationF = duration;
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), msgF, durationF).show();
-            }
-        });
+        runOnMainThread(() -> Toast.makeText(getApplicationContext(), msgF, durationF).show());
     }
 
     public String getMetaFromApplication(String key) {
