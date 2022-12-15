@@ -64,7 +64,7 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.RewardedVideo);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedVideo, AdState.Error.ordinal());
+            onShowAdFailed(AdType.RewardedVideo, AdState.Error.ordinal(), UNIT_AD_EMPTY);
             return;
         }
         rewardAdState = AdState.Loading;
@@ -160,7 +160,7 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.Interstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.Interstitial, AdState.Error.ordinal());
+            onShowAdFailed(AdType.Interstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
             return;
         }
         interstitialAdState = AdState.Loading;
@@ -249,7 +249,7 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.RewardedInterstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedInterstitial, AdState.Error.ordinal());
+            onShowAdFailed(AdType.RewardedInterstitial, AdState.Error.ordinal(),UNIT_AD_EMPTY);
             return;
         }
         rewardInterstitialAdState = AdState.Loading;
@@ -327,8 +327,8 @@ public class GoogleMobAd extends AdsWrapper {
     }
 
     @Override
-    protected void loadBannerAd() {
-        super.loadBannerAd();
+    protected void loadBannerAd(boolean autoShow) {
+        super.loadBannerAd(autoShow);
         mActivity.runOnMainThread(() -> {
             if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
                 Log.d(TAG, "Banner loading or loaded");
@@ -423,18 +423,14 @@ public class GoogleMobAd extends AdsWrapper {
 
                 });
             } else {
-                loadBannerAd();
+                loadBannerAd(true);
             }
         } else {
-            if (null == mBannerAdView) {
-                loadBannerAd();
-            } else {
-                mActivity.runOnMainThread(() -> {
-                    AdRequest adRequest = new AdRequest.Builder()
-                            .build();
-                    mBannerAdView.loadAd(adRequest);
-                });
+            if (null != mBannerAdView) {
+                mBannerAdView.destroy();
+                mBannerAdView = null;
             }
+            loadBannerAd(true);
         }
     }
 
