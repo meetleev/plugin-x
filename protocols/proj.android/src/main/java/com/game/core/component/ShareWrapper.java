@@ -2,6 +2,7 @@ package com.game.core.component;
 
 import android.util.Log;
 
+import com.game.core.BuildConfig;
 import com.game.core.Constants;
 import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
@@ -31,7 +32,7 @@ public class ShareWrapper extends PluginWrapper {
         Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());
         if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase())) return;
         if (Constants.SHARE.equals(eventName)) {
-            final String value = (String)objects[1];
+            final String value = (String) objects[1];
             share(value);
         }
     };
@@ -48,13 +49,21 @@ public class ShareWrapper extends PluginWrapper {
 
     protected void onShareSucceed(String postId) {
         getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Succeed.ordinal(), postId);
+        if (BuildConfig.USED_NATIVE)
+            onShareResult(PluginStatusCodes.Succeed.ordinal(), postId);
     }
 
     protected void onShareFailed(PluginError pluginError) {
         getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Failed, pluginError);
+        if (BuildConfig.USED_NATIVE)
+            onShareResult(PluginStatusCodes.Failed.ordinal(), pluginError.toString());
     }
 
     protected void onShareCanceled() {
         getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Canceled);
+        if (BuildConfig.USED_NATIVE)
+            onShareResult(PluginStatusCodes.Canceled.ordinal(), null);
     }
+
+    public native void onShareResult(int code, String data);
 }

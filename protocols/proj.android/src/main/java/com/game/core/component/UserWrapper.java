@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.game.core.BuildConfig;
 import com.game.core.Constants;
 import com.game.core.utils.NotificationCenter;
 import com.game.core.utils.ObserverListener;
@@ -58,14 +59,20 @@ public class UserWrapper extends PluginWrapper {
 
     protected void onLoginSucceed(UserInfo userInfo) {
         getParent().nativeCallScript(ON_LOGIN_RESULT, PluginStatusCodes.Succeed.ordinal(), userInfo);
+        if (BuildConfig.USED_NATIVE)
+            onLoginResult(PluginStatusCodes.Succeed.ordinal(), userInfo.toString());
     }
 
     protected void onLoginFailed(PluginError pluginError) {
         getParent().nativeCallScript(ON_LOGIN_RESULT, PluginStatusCodes.Failed, pluginError);
+        if (BuildConfig.USED_NATIVE)
+            onLoginResult(PluginStatusCodes.Failed.ordinal(), pluginError.toString());
     }
 
     protected void onLoginCanceled() {
         getParent().nativeCallScript(ON_LOGIN_RESULT, PluginStatusCodes.Canceled);
+        if (BuildConfig.USED_NATIVE)
+            onLoginResult(PluginStatusCodes.Canceled.ordinal(), null);
     }
 
     protected ObserverListener mObserverListener = (eventName, objects) -> {
@@ -86,4 +93,6 @@ public class UserWrapper extends PluginWrapper {
         NotificationCenter.getInstance().registerObserver(Constants.LOG_IN, mObserverListener, this);
         NotificationCenter.getInstance().registerObserver(Constants.LOG_OUT, mObserverListener, this);
     }
+
+    public native void onLoginResult(int code, String data);
 }

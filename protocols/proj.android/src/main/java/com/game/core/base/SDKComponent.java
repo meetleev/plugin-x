@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.game.core.BuildConfig;
 import com.game.core.Constants;
 import com.game.core.component.Component;
 import com.game.core.component.Permissions;
@@ -39,6 +40,7 @@ public class SDKComponent extends Component {
     public Activity getActivity() {
         return this.mActivity.get();
     }
+
     protected ObserverListener mObserverListener = (eventName, objects) -> {
         Log.d(Constants.TAG, "onMessage " + eventName);
         if (eventName.equals(Constants.SHOW_TOAST)) {
@@ -56,17 +58,23 @@ public class SDKComponent extends Component {
 
     public void init(Activity activity) {
         mActivity = new WeakReference<>(activity);
+        if (BuildConfig.USED_NATIVE)
+            register();
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack) {
         mActivity = new WeakReference<>(activity);
         mGameThreadCallBack = gameThreadCallBack;
+        if (BuildConfig.USED_NATIVE)
+            register();
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack, IJavaCallScriptCallBack javaCallScriptCallBack) {
         mActivity = new WeakReference<>(activity);
         mGameThreadCallBack = gameThreadCallBack;
         mJavaCallScriptCallBack = javaCallScriptCallBack;
+        if (BuildConfig.USED_NATIVE)
+            register();
     }
 
 
@@ -117,7 +125,7 @@ public class SDKComponent extends Component {
         return null;
     }
 
-    public  <T extends Component> T addComponent(@NonNull Class cls) {
+    public <T extends Component> T addComponent(@NonNull Class cls) {
         if (Objects.equals(cls.getSuperclass(), Component.class) || Objects.equals(cls.getSuperclass().getSuperclass(), Component.class) || Objects.equals(cls.getSuperclass().getSuperclass(), PluginWrapper.class)) {
             try {
                 return addComponent((T) cls.newInstance());
@@ -167,6 +175,7 @@ public class SDKComponent extends Component {
         for (Component component : mComponents)
             component.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
     @Override
     public void onLoad() {
         NotificationCenter.getInstance().registerObserver(Constants.SHOW_TOAST, this.mObserverListener, this);
@@ -226,4 +235,6 @@ public class SDKComponent extends Component {
     public boolean getBooleanMetaFromApp(String key, boolean defaultValue) {
         return Function.getBooleanMetaFromApp(getActivity(), key, defaultValue);
     }
+
+    public native void register();
 }
