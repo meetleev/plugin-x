@@ -88,11 +88,11 @@ public class BaseApp extends Application {
         return false;
     }
 
-    public String getMetaFromApplication(String key) {
-        return getMetaFromApplication(key, null);
+    public String getStringMetaFromApp(String key) {
+        return getStringMetaFromApp(key, null);
     }
 
-    public String getMetaFromApplication(String key, String defaultValue) {
-        return Function.getMetaFromApplication(this, key, defaultValue);
+    public String getStringMetaFromApp(String key, String defaultValue) {
+        return Function.getStringMetaFromApp(this, key, defaultValue);
     }
 }

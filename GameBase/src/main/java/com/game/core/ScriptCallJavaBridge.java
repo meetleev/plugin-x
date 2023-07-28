@@ -35,6 +35,18 @@ public class ScriptCallJavaBridge {
         ScriptCallJavaBridge.paymentWithProductId(sdkName, productId, true);
     }
 
+    public static void logIn(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.LOG_IN, sdkName);
+    }
+
+    public static void logOut(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.LOG_OUT, sdkName);
+    }
+
+    public static void share(String sdkName, String content) {
+        NotificationCenter.getInstance().postNotification(Constants.SHARE, sdkName, content);
+    }
+
     public static void paymentWithProductId(String sdkName, String productId, boolean bAutoConsume) {
         NotificationCenter.getInstance().postNotification(Constants.PAYMENT_PRODUCT, sdkName, productId, bAutoConsume);
     }

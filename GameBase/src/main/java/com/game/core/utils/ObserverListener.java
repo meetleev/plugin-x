@@ -1,5 +1,5 @@
 package com.game.core.utils;
 
 public interface ObserverListener {
-    void onMessage(Object target, String eventName, Object... objects);
+    void onMessage( String eventName, Object... objects);
 }

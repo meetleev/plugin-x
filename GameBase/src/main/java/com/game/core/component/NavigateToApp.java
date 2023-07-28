@@ -21,19 +21,24 @@ import android.widget.Toast;
 import androidx.core.content.FileProvider;
 
 import com.game.core.Constants;
+import com.game.core.base.SDKComponent;
 
 import java.io.File;
 import java.util.HashMap;
 
 public class NavigateToApp extends Component {
     private DownloadManager mManager;
-    private HashMap<String, Integer> mDownloadManagerStatusMap = new HashMap<>();
-    private HashMap<String, String> mDownloadManagerIdsMap = new HashMap<>();
+    private final HashMap<String, Integer> mDownloadManagerStatusMap = new HashMap<>();
+    private final HashMap<String, String> mDownloadManagerIdsMap = new HashMap<>();
+
+    public SDKComponent getParent() {
+        return (SDKComponent) (parent.get());
+    }
 
     @Override
     public void onLoad() {
         super.onLoad();
-        mManager = (DownloadManager) mActivity.getSystemService(mActivity.DOWNLOAD_SERVICE);
+        mManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
     public void navigateToApp(String url, String packageName) {
@@ -43,16 +48,14 @@ public class NavigateToApp extends Component {
             StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
             StrictMode.setVmPolicy(builder.build());
         }
-        Permission permissionComponent = this.getActivity().getComponent(Permission.class);
+        SDKComponent root = (SDKComponent) this.getParent();
+        Permissions permissionComponent = root.getComponent(Permissions.class);
         if (null != permissionComponent) {
-            permissionComponent.hasPermissions(permissionComponent.generateDynamicRequestCode(this), new Permission.RequestPermissionCallback() {
-                @Override
-                public void onRequestCallback(boolean bSuccess) {
-                    if (bSuccess) {
-                        jumpApk(sUrl, sPackageName);
-                    } else {
-                        getActivity().showToast("需要访问存储空间权限，请授权", Toast.LENGTH_LONG);
-                    }
+            permissionComponent.hasPermissions(permissionComponent.generateDynamicRequestCode(this), bSuccess -> {
+                if (bSuccess) {
+                    jumpApk(sUrl, sPackageName);
+                } else {
+                    root.showToast("需要访问存储空间权限，请授权", Toast.LENGTH_LONG);
                 }
             }, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         } else {
@@ -69,11 +72,11 @@ public class NavigateToApp extends Component {
             apkName = _str[_str.length - 1];
         }
 
-        PackageManager packageManager = mActivity.getPackageManager();
+        PackageManager packageManager = getActivity().getPackageManager();
         if (checkPackInfo(packageName)) {
             //存在apk直接打开
             Intent intent = packageManager.getLaunchIntentForPackage(packageName);
-            mActivity.startActivity(intent);
+            getActivity().startActivity(intent);
         /*} else if (checkApkIsExists(apkName)) {
             //apk已经下载好PS：未安装
             File apkFile = new File(Environment.getExternalStoragePublicDirectory("/download/"), apkName);
@@ -94,12 +97,7 @@ public class NavigateToApp extends Component {
                 if (!bDownload)
                     backDownload(url, apkName);
                 else
-                    this.getActivity().runOnMainThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            getActivity().showToast("正在下载中...");
-                        }
-                    });
+                    getParent().showToast("正在下载中...");
             } else {
                 CallDefaultBrowser(url);
             }
@@ -128,7 +126,7 @@ public class NavigateToApp extends Component {
     private boolean checkPackInfo(String packageName) {
         PackageInfo packageInfo = null;
         try {
-            packageInfo = mActivity.getPackageManager().getPackageInfo(packageName, 0);
+            packageInfo = getActivity().getPackageManager().getPackageInfo(packageName, 0);
         } catch (PackageManager.NameNotFoundException e) {
             Log.d(Constants.TAG, "func-checkPackInfo----e: " + e.toString());
         }
@@ -139,24 +137,19 @@ public class NavigateToApp extends Component {
      * 后台下载Apk
      * */
     private void backDownload(String url, String apkName) {
-        this.getActivity().runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                getActivity().showToast("开始下载");
-            }
-        });
+        getParent().showToast("开始下载");
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        //设置可用的网络类型
-        request.setAllowedNetworkTypes(request.NETWORK_MOBILE | request.NETWORK_WIFI);
+        // 设置可用的网络类型
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
         request.setAllowedOverRoaming(false);
         request.setDestinationInExternalPublicDir("/download/", apkName);
         request.setMimeType("application/vnd.android.package-archive");
         request.setVisibleInDownloadsUi(true);
-        //将下载请求放入队列
+        // 将下载请求放入队列
         long UCID = mManager.enqueue(request);
         mDownloadManagerIdsMap.put(apkName, UCID + "");
         mDownloadManagerStatusMap.put(UCID + "", DownloadManager.STATUS_PENDING);
-        mActivity.registerReceiver(receiver, new IntentFilter(mManager.ACTION_DOWNLOAD_COMPLETE));
+        getActivity().registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     /*
@@ -167,10 +160,10 @@ public class NavigateToApp extends Component {
         intent.setAction("android.intent.action.VIEW");
         Uri uri = Uri.parse(url);
         intent.setData(uri);
-        mActivity.startActivity(intent);
+        getActivity().startActivity(intent);
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             DownloadManager.Query query = new DownloadManager.Query();
@@ -178,7 +171,9 @@ public class NavigateToApp extends Component {
             query.setFilterById(id);
             Cursor c = mManager.query(query);
             if (c.moveToFirst()) {
-                int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                int temp = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                if (0 > temp) temp = 0;
+                int status = c.getInt(temp);
                 mDownloadManagerStatusMap.put(id + "", status);
                 switch (status) {
                     case DownloadManager.STATUS_PAUSED:

@@ -23,3 +23,26 @@
 # Proguard GameBase for release
 -keep public class com.game.core.ScriptCallJavaBridge { *; }
 -dontwarn com.game.**
+
+# natvie 方法不混淆
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keep public class com.game.core.base.SDKComponent {
+    public<methods>;
+}
+
+-keep public class com.game.core.component.UserWrapper {
+    public<methods>;
+}
+
+-keep class com.game.core.component.UserWrapper$* {
+    <fields>;
+}
+
+-keepnames public class com.game.core.component.Component
+-keep public class com.game.core.component.PluginError {
+    <fields>;
+}
+-keepnames public class com.game.core.component.PluginWrapper

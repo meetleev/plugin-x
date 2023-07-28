@@ -2,16 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.game.googlePay">
     <!-- VERY IMPORTANT! Don't forget this permission, or in-app billing won't work. -->
-    <uses-permission android:name="com.android.vending.BILLING" />
     <application>
         <meta-data
             android:name="ANALYTICS_CHANNEL"
             android:value="GP" />
         <meta-data
-            android:name="inAppSKUs"
-            android:value="character_gift_1,character_gift_2,character_gift_1,wish_package0.99" />
+            android:name="inAppProducts"
+            android:value="character_gift_1,character_gift_2" />
         <meta-data
-            android:name="autoConsumeSKUs"
-            android:value="character_gift_1,character_gift_2,character_gift_1,wish_package0.99" />
+            android:name="autoConsumeProducts"
+            android:value="character_gift_1,character_gift_2" />
     </application>
+    <uses-permission android:name="com.android.vending.BILLING" />
 </manifest>

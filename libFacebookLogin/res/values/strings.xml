@@ -1,0 +1,4 @@
+<resources>
+    <string name="facebook_app_id" translatable="false">xx</string>
+    <string name="facebook_client_token" translatable="false">xx</string>
+</resources>

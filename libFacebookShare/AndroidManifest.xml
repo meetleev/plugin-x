@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.game.user">
+
+    <application>
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider{APP_ID}"
+            android:exported="true" />
+
+    </application>
+    <queries>
+        <provider android:authorities="com.facebook.katana.provider.PlatformProvider" />
+    </queries>
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

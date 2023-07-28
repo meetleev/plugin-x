@@ -12,46 +12,38 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class IAPWrapper extends PluginWrapper {
-    public enum SkuState {
-        None,
-        Pending,
-        Purchased,
+    public enum ProductState {
+        None, Pending, Purchased,
     }
 
     public enum PayResult {
-        Success,
-        Fail,
-        Cancel,
+        Success, Fail, Cancel,
     }
 
-    protected final Set<String> autoConsumeSKUs = new HashSet<>();
-    protected final Map<String, SkuState> skuStateMap = new HashMap<>();
-    protected List<String> inAppSKUs;
-    protected List<String> subscriptionSKUs;
+    protected final Set<String> autoConsumeProducts = new HashSet<>();
+    protected final Map<String, ProductState> productStateMap = new HashMap<>();
+    protected List<String> inAppProducts;
+    protected List<String> subscriptionProducts;
 
     private final static String ON_PAYMENT_RESULT = "onPaymentResult";
-    private final static String IN_APP_SKUS = "inAppSKUs";
-    private final static String AUTO_CONSUME_SKUS = "autoConsumeSKUs";
-    private final static String SUBSCRIPTION_SKUS = "subscriptionSKUs";
+    private final static String IN_APP_PRODUCTS = "inAppProducts";
+    private final static String AUTO_CONSUME_PRODUCTS = "autoConsumeProducts";
+    private final static String SUBSCRIPTION_PRODUCTS = "subscriptionProducts";
 
-    protected ObserverListener mObserverListener = new ObserverListener() {
-        @Override
-        public void onMessage(Object target, String eventName, Object... objects) {
-            Log.d(Constants.TAG, "onMessage " + eventName);
-            if (target.getClass().getSuperclass().equals(IAPWrapper.class)) {
-                String sdkName = (String) objects[0];
-                Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + target.getClass().getSimpleName());
-                if (!target.getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
-                    return;
-                if (Constants.PAYMENT_PRODUCT.equals(eventName)) {
-                    String productId = (String) objects[1];
-                    Log.d(Constants.TAG, "payment " + productId);
-                    paymentWithProductId(productId);
-                }
-            }
+    protected ObserverListener mObserverListener = (eventName, objects) -> {
+        Log.d(Constants.TAG, "onMessage " + eventName);
+        String sdkName = (String) objects[0];
+        Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());
+        if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
+            return;
+        if (Constants.PAYMENT_PRODUCT.equals(eventName)) {
+            String productId = (String) objects[1];
+            Log.d(Constants.TAG, "payment " + productId);
+            paymentWithProductId(productId);
         }
     };
 
@@ -63,7 +55,7 @@ public class IAPWrapper extends PluginWrapper {
     }
 
 
-    protected void syncSKUs() {
+    protected void syncProducts() {
 
     }
 
@@ -73,40 +65,40 @@ public class IAPWrapper extends PluginWrapper {
     @Override
     public void configDevInfo(Hashtable<String, String> cpInfo) {
         super.configDevInfo(cpInfo);
-        if (cpInfo.contains(IN_APP_SKUS)) {
-            inAppSKUs = Arrays.asList(cpInfo.get(IN_APP_SKUS).split(","));
+        if (cpInfo.contains(IN_APP_PRODUCTS)) {
+            inAppProducts = Arrays.asList(Objects.requireNonNull(cpInfo.get(IN_APP_PRODUCTS)).split(","));
         }
-        if (cpInfo.contains(SUBSCRIPTION_SKUS)) {
-            subscriptionSKUs = Arrays.asList(cpInfo.get(SUBSCRIPTION_SKUS).split(","));
+        if (cpInfo.contains(SUBSCRIPTION_PRODUCTS)) {
+            subscriptionProducts = Arrays.asList(Objects.requireNonNull(cpInfo.get(SUBSCRIPTION_PRODUCTS)).split(","));
         }
-        if (null != inAppSKUs && !inAppSKUs.isEmpty() || null != subscriptionSKUs && !subscriptionSKUs.isEmpty())
-            syncSKUs();
+        if (null != inAppProducts && !inAppProducts.isEmpty() || null != subscriptionProducts && !subscriptionProducts.isEmpty())
+            syncProducts();
     }
 
     public void readPayConfig() {
-        String sAutoConsumeSKUS = mActivity.getMetaFromApplication(AUTO_CONSUME_SKUS);
-        if (null != sAutoConsumeSKUS && !sAutoConsumeSKUS.isEmpty()) {
-            autoConsumeSKUs.addAll(Arrays.asList(sAutoConsumeSKUS.split(",")));
+        String sAutoConsumeProducts = getParent().getStringMetaFromApp(AUTO_CONSUME_PRODUCTS);
+        if (null != sAutoConsumeProducts && !sAutoConsumeProducts.isEmpty()) {
+            autoConsumeProducts.addAll(Arrays.asList(sAutoConsumeProducts.split(",")));
         }
-        String sInAppSKUs = mActivity.getMetaFromApplication(IN_APP_SKUS);
-        if (null != sInAppSKUs && !sInAppSKUs.isEmpty()) {
-            inAppSKUs = Arrays.asList(sInAppSKUs.split(","));
-            addSkuData(inAppSKUs);
+        String sInAppProducts = getParent().getStringMetaFromApp(IN_APP_PRODUCTS);
+        if (null != sInAppProducts && !sInAppProducts.isEmpty()) {
+            inAppProducts = Arrays.asList(sInAppProducts.split(","));
+            addProductData(inAppProducts);
         }
-        String sSubscriptionSKUs = mActivity.getMetaFromApplication(SUBSCRIPTION_SKUS);
-        if (null != sSubscriptionSKUs && !sSubscriptionSKUs.isEmpty()) {
-            subscriptionSKUs = Arrays.asList(sSubscriptionSKUs.split(","));
-            addSkuData(subscriptionSKUs);
+        String sSubscriptionProducts = getParent().getStringMetaFromApp(SUBSCRIPTION_PRODUCTS);
+        if (null != sSubscriptionProducts && !sSubscriptionProducts.isEmpty()) {
+            subscriptionProducts = Arrays.asList(sSubscriptionProducts.split(","));
+            addProductData(subscriptionProducts);
         }
-        Log.d(Constants.TAG, "readPayConfig " + inAppSKUs + " " + subscriptionSKUs);
+        Log.d(Constants.TAG, "readPayConfig " + inAppProducts + " " + subscriptionProducts);
     }
 
-    private void addSkuData(List<String> skuList) {
+    private void addProductData(List<String> skuList) {
         for (String sku : skuList)
-            skuStateMap.put(sku, SkuState.None);
+            productStateMap.put(sku, ProductState.None);
     }
 
-    protected void onPaymentResult(PayResult payResult, String msg) {
-        mActivity.nativeCallScript(ON_PAYMENT_RESULT, payResult.ordinal(), msg);
+    protected void onPaymentResult(PayResult payResult, PluginError pluginError) {
+        getParent().nativeCallScript(ON_PAYMENT_RESULT, payResult.ordinal(), pluginError);
     }
 }

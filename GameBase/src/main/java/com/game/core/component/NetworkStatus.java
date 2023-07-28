@@ -2,7 +2,7 @@ package com.game.core.component;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -208,9 +208,7 @@ public class NetworkStatus extends Component {
 //            Log.d(Constants.TAG,"网络连接异常!!!");
             checkProgressThread.tSuspend();
             mHandler.sendEmptyMessage(PROGRESSBAR_STOP);
-        } else {
-            //
-        }
+        }  //
     }
 
 
@@ -239,8 +237,11 @@ public class NetworkStatus extends Component {
 
     // 判断是否有网络连接
     private boolean isNetworkConnected() {
-        ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
-                .getSystemService(mActivity.CONNECTIVITY_SERVICE);
+        ConnectivityManager mConnectivityManager = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            mConnectivityManager = (ConnectivityManager) getActivity()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
         NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo();
         if (mNetworkInfo != null) {
             return mNetworkInfo.isAvailable();
@@ -250,8 +251,8 @@ public class NetworkStatus extends Component {
 
     // 判断WIFI网络是否可用
     private boolean isWifiConnected() {
-        ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
-                .getSystemService(mActivity.CONNECTIVITY_SERVICE);
+        ConnectivityManager mConnectivityManager = (ConnectivityManager) getActivity()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mWiFiNetworkInfo = mConnectivityManager
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (mWiFiNetworkInfo != null) {
@@ -262,8 +263,8 @@ public class NetworkStatus extends Component {
 
     // 判断MOBILE网络是否可用
     private boolean isMobileConnected() {
-        ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
-                .getSystemService(mActivity.CONNECTIVITY_SERVICE);
+        ConnectivityManager mConnectivityManager = (ConnectivityManager) getActivity()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mMobileNetworkInfo = mConnectivityManager
                 .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if (mMobileNetworkInfo != null) {
@@ -274,8 +275,8 @@ public class NetworkStatus extends Component {
 
     @TargetApi(23)
     private boolean isHasNetWork() {
-        ConnectivityManager mConnectivityManager = (ConnectivityManager) mActivity
-                .getSystemService(mActivity.CONNECTIVITY_SERVICE);
+        ConnectivityManager mConnectivityManager = (ConnectivityManager) getActivity()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkCapabilities networkCapabilities = mConnectivityManager.getNetworkCapabilities(mConnectivityManager.getActiveNetwork());
         Log.d(Constants.TAG, "networkCapabilities content : " + networkCapabilities);
         if (null != networkCapabilities)
@@ -296,7 +297,7 @@ public class NetworkStatus extends Component {
             // 读取ping的内容，可以不加
             InputStream input = p.getInputStream();
             BufferedReader in = new BufferedReader(new InputStreamReader(input));
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuffer = new StringBuilder();
             String content = "";
             while ((content = in.readLine()) != null) {
                 stringBuffer.append(content);
@@ -325,28 +326,22 @@ public class NetworkStatus extends Component {
     private void showNetworkState(int n) {
         iType = n;
 //        Log.d(Constants.TAG,"显示网络状态提示框!!!n: "+ n);
-        new AlertDialog.Builder(mActivity)
+        new AlertDialog.Builder(getActivity())
                 .setTitle("")
                 .setCancelable(false)
                 .setMessage("当前网络不可以，请尝试重新连接!")
-                .setPositiveButton("确定", new AlertDialog.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        if (iType == 1) {
-                            checkNetworkThread.tResume();
-                        } else {
-                            checkProgressThread.tResume();
-                        }
+                .setPositiveButton("确定", (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                    if (iType == 1) {
+                        checkNetworkThread.tResume();
+                    } else {
+                        checkProgressThread.tResume();
                     }
                 })
-                .setNegativeButton("退出", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        mActivity.finish();
-                        System.exit(0);
-                    }
+                .setNegativeButton("退出", (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                    getActivity().finish();
+                    System.exit(0);
                 }).show();
     }
 

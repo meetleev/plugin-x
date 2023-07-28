@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.game.plugin.user.gp">
+
+    <application>
+        <meta-data
+            android:name="META_GP_AUTHENTICATION_SERVER_ID"
+            android:value="GP" />
+    </application>
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

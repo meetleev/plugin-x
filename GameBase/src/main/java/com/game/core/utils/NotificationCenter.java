@@ -81,7 +81,7 @@ public class NotificationCenter {
         for (Observer observer : this.mObservers) {
             ObserverListener listener = observer.getListener(eventName);
             if (null != listener)
-                listener.onMessage(observer.getTarget(), eventName, objects);
+                listener.onMessage( eventName, objects);
         }
     }
 
