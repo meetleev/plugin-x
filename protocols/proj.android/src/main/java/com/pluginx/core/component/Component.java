@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.app.Activity;
 import android.content.Intent;

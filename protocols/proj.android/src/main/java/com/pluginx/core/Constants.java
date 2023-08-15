@@ -1,7 +1,7 @@
-package com.game.core;
+package com.pluginx.core;
 
 public class Constants {
-    public static final int VERSION_CODE = 107;
+    public static final int VERSION_CODE = 110;
     public static final String TAG = "NATIVE_GAME_CORE";
     public static final String SHOW_TOAST = "SHOW_TOAST";
     public static final String SHOW_REWARD_VIDEO_AD = "SHOW_REWARD_VIDEO_AD";

@@ -1,6 +1,7 @@
-package com.game.core;
+package com.pluginx.core;
 
-import com.game.core.utils.NotificationCenter;
+
+import com.pluginx.core.utils.NotificationCenter;
 
 public class ScriptCallJavaBridge {
     public static void showRewardedVideoAd(String sdkName) {

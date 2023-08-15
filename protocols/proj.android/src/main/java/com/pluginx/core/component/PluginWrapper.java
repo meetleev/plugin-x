@@ -1,7 +1,8 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
-import com.game.core.base.SDKComponent;
-import com.game.core.utils.NotificationCenter;
+
+import com.pluginx.core.base.SDKComponent;
+import com.pluginx.core.utils.NotificationCenter;
 
 import java.util.Hashtable;
 
@@ -12,6 +13,18 @@ public class PluginWrapper extends Component {
 
     public SDKComponent getParent() {
         return (SDKComponent)(parent.get());
+    }
+
+    public void runOnMainThread(Runnable r) {
+        getParent().runOnMainThread(r);
+    }
+
+    public void runOnMainThread(Runnable r, long delayMillis) {
+        getParent().runOnMainThread(r, delayMillis);
+    }
+
+    public void runOnGLThread(Runnable runnable) {
+        getParent().runOnGLThread(runnable);
     }
 
     @Override

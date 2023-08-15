@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -11,7 +11,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.game.core.Constants;
+import com.pluginx.core.Constants;
 
 import java.io.BufferedReader;
 import java.io.IOException;

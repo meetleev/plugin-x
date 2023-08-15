@@ -1,4 +1,4 @@
-package com.game.core.base;
+package com.pluginx.core.base;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -9,14 +9,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.game.core.BuildConfig;
-import com.game.core.Constants;
-import com.game.core.component.Component;
-import com.game.core.component.Permissions;
-import com.game.core.component.PluginWrapper;
-import com.game.core.utils.Function;
-import com.game.core.utils.NotificationCenter;
-import com.game.core.utils.ObserverListener;
+import com.pluginx.core.BuildConfig;
+import com.pluginx.core.Constants;
+import com.pluginx.core.component.Component;
+import com.pluginx.core.component.Permissions;
+import com.pluginx.core.component.PluginWrapper;
+import com.pluginx.core.utils.Function;
+import com.pluginx.core.utils.NotificationCenter;
+import com.pluginx.core.utils.ObserverListener;
+
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -58,23 +59,23 @@ public class SDKComponent extends Component {
 
     public void init(Activity activity) {
         mActivity = new WeakReference<>(activity);
-        if (BuildConfig.USED_NATIVE)
-            register();
+        if (BuildConfig.USED_NATIVE) register();
+        onLoad();
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack) {
         mActivity = new WeakReference<>(activity);
         mGameThreadCallBack = gameThreadCallBack;
-        if (BuildConfig.USED_NATIVE)
-            register();
+        if (BuildConfig.USED_NATIVE) register();
+        onLoad();
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack, IJavaCallScriptCallBack javaCallScriptCallBack) {
         mActivity = new WeakReference<>(activity);
         mGameThreadCallBack = gameThreadCallBack;
         mJavaCallScriptCallBack = javaCallScriptCallBack;
-        if (BuildConfig.USED_NATIVE)
-            register();
+        if (BuildConfig.USED_NATIVE) register();
+        onLoad();
     }
 
 
@@ -92,16 +93,14 @@ public class SDKComponent extends Component {
 
     public <T extends Component> T getComponent(String componentName) {
         for (Component comp : mComponents) {
-            if (comp.getClass().getSimpleName().equals(componentName))
-                return (T) comp;
+            if (comp.getClass().getSimpleName().equals(componentName)) return (T) comp;
         }
         return null;
     }
 
     public <T extends Component> T getComponent(Class componentCls) {
         for (Component comp : mComponents) {
-            if (comp.getClass().equals(componentCls))
-                return (T) comp;
+            if (comp.getClass().equals(componentCls)) return (T) comp;
         }
         return null;
     }
@@ -138,8 +137,7 @@ public class SDKComponent extends Component {
 
     private boolean isExistComponent(Component component) {
         for (Component comp : mComponents) {
-            if (comp.equals(component))
-                return true;
+            if (comp.equals(component)) return true;
         }
         return false;
     }
@@ -184,18 +182,27 @@ public class SDKComponent extends Component {
     }
 
     public void runOnGLThread(Runnable runnable) {
-        if (null != mGameThreadCallBack)
-            mGameThreadCallBack.run(runnable);
+        if (null != mGameThreadCallBack) mGameThreadCallBack.run(runnable);
     }
 
     public void nativeCallScript(Object... objects) {
         StringBuilder call = new StringBuilder("ccx.eventManager.emit(");
         for (Object obj : objects) {
             if (null == obj) continue;
-            call.append(obj).append(",");
+            if (obj.getClass().isEnum()) {
+                call.append(((Enum<?>) obj).ordinal()).append(",");
+            } else if (obj.getClass().isPrimitive()) {
+                if (obj.getClass().equals(Character.class)) {
+                    call.append("'").append(obj).append("', ");
+                } else {
+                    call.append(obj).append(", ");
+                }
+            } else {
+                call.append("'").append(obj).append("', ");
+            }
         }
         call = new StringBuilder(call.substring(0, call.length() - 1) + ")");
-        Log.d(Constants.TAG, "nativeCallScript ->[ " + call + " ]");
+        Log.d(Constants.TAG, "nativeCallScript -> " + call);
 
         final String call_ = call.toString();
         this.runOnGLThread(() -> {

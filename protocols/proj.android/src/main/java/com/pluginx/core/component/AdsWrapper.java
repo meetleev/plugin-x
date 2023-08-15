@@ -1,30 +1,23 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.util.Log;
 
-import com.game.core.Constants;
-import com.game.core.utils.NotificationCenter;
-import com.game.core.utils.ObserverListener;
+import com.pluginx.core.BuildConfig;
+import com.pluginx.core.Constants;
+import com.pluginx.core.utils.NotificationCenter;
+import com.pluginx.core.utils.ObserverListener;
+
 
 public class AdsWrapper extends PluginWrapper {
     public enum AdState {
-        None,
-        Loading,
-        Loaded,
-        Watched,
-        NotWatchComplete,
-        Error,
+        None, Loading, Loaded, Watched, NotWatchComplete, Error,
     }
 
     public enum AdType {
-        RewardedVideo,
-        RewardedInterstitial,
-        Interstitial,
-        Banner,
+        RewardedVideo, RewardedInterstitial, Interstitial, Banner,
     }
 
-    protected final String ON_SHOW_AD_SUCCESS = "onShowAdSuccess";
-    protected final String ON_SHOW_AD_FAILED = "onShowAdFailed";
+    protected final String ON_SHOW_AD_RESULT = "onShowAdResult";
     protected final String UNIT_AD_EMPTY = "the unit ad was emptied";
     protected final String SPLASH_PLAY_COMPLETE = "SPLASH_PLAY_COMPLETE";
 
@@ -37,8 +30,7 @@ public class AdsWrapper extends PluginWrapper {
         Log.d(Constants.TAG, "ads onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "ads onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());
-        if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
-            return;
+        if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase())) return;
         switch (eventName) {
             case Constants.SHOW_REWARD_VIDEO_AD:
                 Log.d(Constants.TAG, "showRewardedVideoAd");
@@ -98,7 +90,7 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     public void showRewardedInterstitialAd() {
-        this.onShowAdFailed(AdType.RewardedInterstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+        onShowAdFailed(AdType.RewardedInterstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
     }
 
     protected void preloadInterstitialAd() {
@@ -114,14 +106,16 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     protected void onShowAdSuccess(AdType adType) {
-        getParent().nativeCallScript(ON_SHOW_AD_SUCCESS, adType.ordinal());
+        getParent().nativeCallScript(ON_SHOW_AD_RESULT, adType, PluginStatusCodes.Succeed);
+        if (BuildConfig.USED_NATIVE)
+            onShowAdResult(adType.ordinal(), PluginStatusCodes.Succeed.ordinal(), null);
     }
 
-    protected void onShowAdFailed(AdType adType, int errCode, String errMsg) {
-        getParent().nativeCallScript(ON_SHOW_AD_FAILED, adType.ordinal(), errCode, errMsg);
+    protected void onShowAdFailed(AdType adType, PluginError pluginError) {
+        getParent().nativeCallScript(ON_SHOW_AD_RESULT, adType, PluginStatusCodes.Failed, pluginError.toString());
+        if (BuildConfig.USED_NATIVE)
+            onShowAdResult(adType.ordinal(), PluginStatusCodes.Failed.ordinal(), pluginError.toString());
     }
 
-    protected void onShowAdFailed(AdType adType, int errCode) {
-        getParent().nativeCallScript(ON_SHOW_AD_FAILED, adType.ordinal(), errCode);
-    }
+    public native void onShowAdResult(int adType, int code, String data);
 }

@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
-import com.game.core.Constants;
-import com.game.core.base.SDKComponent;
+import com.pluginx.core.Constants;
+import com.pluginx.core.base.SDKComponent;
 
 import java.io.File;
 import java.util.HashMap;

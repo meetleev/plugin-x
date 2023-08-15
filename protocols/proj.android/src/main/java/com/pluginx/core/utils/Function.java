@@ -1,4 +1,4 @@
-package com.game.core.utils;
+package com.pluginx.core.utils;
 
 import android.content.Context;
 import android.content.pm.PackageItemInfo;

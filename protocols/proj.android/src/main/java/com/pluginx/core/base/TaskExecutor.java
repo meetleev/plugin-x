@@ -1,4 +1,4 @@
-package com.game.core.base;
+package com.pluginx.core.base;
 
 import android.os.Handler;
 import android.os.Looper;

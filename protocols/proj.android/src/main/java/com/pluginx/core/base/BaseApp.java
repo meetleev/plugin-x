@@ -1,4 +1,4 @@
-package com.game.core.base;
+package com.pluginx.core.base;
 
 import android.app.Application;
 import android.content.Context;
@@ -6,9 +6,9 @@ import android.util.Log;
 
 import androidx.multidex.MultiDex;
 
-import com.game.core.Constants;
-import com.game.core.component.AppComponent;
-import com.game.core.utils.Function;
+import com.pluginx.core.Constants;
+import com.pluginx.core.component.AppComponent;
+import com.pluginx.core.utils.Function;
 
 import java.util.ArrayList;
 
@@ -37,16 +37,14 @@ public class BaseApp extends Application {
 
     public <T extends AppComponent> T getComponent(String componentName) {
         for (AppComponent comp : mComponents) {
-            if (comp.getClass().getSimpleName().equals(componentName))
-                return (T) comp;
+            if (comp.getClass().getSimpleName().equals(componentName)) return (T) comp;
         }
         return null;
     }
 
     public <T extends AppComponent> T getComponent(Class componentCls) {
         for (AppComponent comp : mComponents) {
-            if (comp.getClass().equals(componentCls))
-                return (T) comp;
+            if (comp.getClass().equals(componentCls)) return (T) comp;
         }
         return null;
     }
@@ -82,8 +80,7 @@ public class BaseApp extends Application {
 
     private boolean isExistComponent(AppComponent component) {
         for (AppComponent comp : mComponents) {
-            if (comp.equals(component))
-                return true;
+            if (comp.equals(component)) return true;
         }
         return false;
     }

@@ -1,4 +1,4 @@
-package com.game.core.utils;
+package com.pluginx.core.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import androidx.annotation.NonNull;
 
@@ -11,6 +11,10 @@ public class PluginError {
     public PluginError(String errMsg) {
         this.code = -1;
         this.errMsg = errMsg;
+    }
+
+    public PluginError(int code) {
+        this.code = code;
     }
 
     public PluginError(int code, String errMsg) {

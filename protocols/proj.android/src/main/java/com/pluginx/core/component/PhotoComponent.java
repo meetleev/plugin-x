@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.annotation.TargetApi;
 import android.content.ContentUris;
@@ -28,7 +28,7 @@ public class PhotoComponent extends Component {
     }
 
     private final static String Tag = "PhotoComponent";
-    private final static int FILECHOOSER_RESULTCODE = 10;// 表单的结果回调
+    private final static int FILE_CHOOSER_RESULT_CODE = 10;// 表单的结果回调
     private PhotoBrowserResultListener mPhotoBrowserResultListener;
 
     public String getPathBeforeKitKat(Intent data) {
@@ -167,13 +167,6 @@ public class PhotoComponent extends Component {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-
-    /**
-     * @return
-     * @Description: 根据图片地址转换为base64编码字符串
-     * @Author:
-     * @CreateTime:
-     */
     public String getFileBase64(String imgFile) {
         Log.i(Tag, "imagePath =>" + imgFile);
         InputStream inputStream = null;
@@ -209,13 +202,13 @@ public class PhotoComponent extends Component {
         i.setType("image/*");
         this.getActivity().startActivityForResult(
                 Intent.createChooser(i, "File Browser"),
-                FILECHOOSER_RESULTCODE);
+                FILE_CHOOSER_RESULT_CODE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(Tag, "onActivityResult-> " + data.getData());
-        if (requestCode == FILECHOOSER_RESULTCODE) {
+        if (requestCode == FILE_CHOOSER_RESULT_CODE) {
             if (resultCode == RESULT_OK) {
                 //判断手机系统版本号
                 String imagePath = null;

@@ -1,6 +1,6 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
-import com.game.core.base.BaseApp;
+import com.pluginx.core.base.BaseApp;
 
 interface IAppComponent {
     void onLoad();

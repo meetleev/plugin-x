@@ -1,14 +1,14 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.game.core.BuildConfig;
-import com.game.core.Constants;
-import com.game.core.utils.NotificationCenter;
-import com.game.core.utils.ObserverListener;
+import com.pluginx.core.BuildConfig;
 import com.google.gson.Gson;
+import com.pluginx.core.Constants;
+import com.pluginx.core.utils.NotificationCenter;
+import com.pluginx.core.utils.ObserverListener;
 
 public class UserWrapper extends PluginWrapper {
     private final static String ON_LOGIN_RESULT = "onLoginResult";

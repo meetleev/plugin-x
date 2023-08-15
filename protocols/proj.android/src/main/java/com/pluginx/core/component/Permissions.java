@@ -1,4 +1,4 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.content.pm.PackageManager;
 import android.os.Build;

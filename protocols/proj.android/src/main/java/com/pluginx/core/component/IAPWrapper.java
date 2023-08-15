@@ -1,10 +1,10 @@
-package com.game.core.component;
+package com.pluginx.core.component;
 
 import android.util.Log;
 
-import com.game.core.Constants;
-import com.game.core.utils.NotificationCenter;
-import com.game.core.utils.ObserverListener;
+import com.pluginx.core.Constants;
+import com.pluginx.core.utils.NotificationCenter;
+import com.pluginx.core.utils.ObserverListener;
 
 import java.util.Arrays;
 import java.util.HashMap;
