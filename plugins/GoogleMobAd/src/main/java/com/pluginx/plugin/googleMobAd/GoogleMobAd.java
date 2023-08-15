@@ -1,4 +1,4 @@
-package com.game.googleMobAd;
+package com.pluginx.plugin.googleMobAd;
 
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.game.core.Constants;
-import com.game.core.component.AdsWrapper;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -26,6 +24,9 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.pluginx.core.Constants;
+import com.pluginx.core.component.AdsWrapper;
+import com.pluginx.core.component.PluginError;
 
 import androidx.annotation.NonNull;
 
@@ -47,7 +48,7 @@ public class GoogleMobAd extends AdsWrapper {
                 new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
         MobileAds.setRequestConfiguration(configuration);*/
         super.initSDK();
-        mActivity.runOnMainThread(() -> MobileAds.initialize(mActivity, (InitializationStatus initializationStatus) -> {
+        runOnMainThread(() -> MobileAds.initialize(getActivity(), (InitializationStatus initializationStatus) -> {
             Log.d(TAG, "onInitializationComplete");
             preloadRewardedAd();
             preloadInterstitialAd();
@@ -64,28 +65,27 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.RewardedVideo);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedVideo, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.RewardedVideo, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         rewardAdState = AdState.Loading;
         AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(mActivity, adId,
-                adRequest, new RewardedAdLoadCallback() {
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error.
-                        Log.d(TAG, "RewardedVideoAd " + loadAdError.getMessage());
-                        mRewardedAd = null;
-                        rewardAdState = AdState.None;
-                    }
+        RewardedAd.load(getActivity(), adId, adRequest, new RewardedAdLoadCallback() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error.
+                Log.d(TAG, "RewardedVideoAd " + loadAdError.getMessage());
+                mRewardedAd = null;
+                rewardAdState = AdState.None;
+            }
 
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
-                        rewardAdState = AdState.Loaded;
-                        mRewardedAd = rewardedAd;
-                        Log.d(TAG, "RewardedVideoAd was loaded.");
-                    }
-                });
+            @Override
+            public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                rewardAdState = AdState.Loaded;
+                mRewardedAd = rewardedAd;
+                Log.d(TAG, "RewardedVideoAd was loaded.");
+            }
+        });
     }
 
     @Override
@@ -110,10 +110,9 @@ public class GoogleMobAd extends AdsWrapper {
                         super.onAdDismissedFullScreenContent();
                         Log.d(TAG, "RewardedVideoAd was dismissed.");
                         mRewardedAd = null;
-                        if (AdState.Watched == rewardAdState)
-                            onShowAdSuccess(AdType.RewardedVideo);
+                        if (AdState.Watched == rewardAdState) onShowAdSuccess(AdType.RewardedVideo);
                         else
-                            onShowAdFailed(AdType.RewardedVideo, AdState.NotWatchComplete.ordinal());
+                            onShowAdFailed(AdType.RewardedVideo, new PluginError(AdState.NotWatchComplete.ordinal()));
                         rewardAdState = AdState.None;
                         preloadRewardedAd();
                     }
@@ -130,25 +129,15 @@ public class GoogleMobAd extends AdsWrapper {
                         Log.d(TAG, "RewardedVideoAd was clicked.");
                     }
                 });
-                mActivity.runOnMainThread(() -> mRewardedAd.show(mActivity, rewardItem -> {
+                runOnMainThread(() -> mRewardedAd.show(getActivity(), rewardItem -> {
                     Log.d(TAG, "RewardedVideoAd onUserEarnedReward.");
                     rewardAdState = AdState.Watched;
                 }));
             }
         } else {
-            onShowAdFailed(AdType.RewardedVideo, rewardAdState.ordinal());
-            mActivity.runOnMainThread(this::preloadRewardedAd);
+            onShowAdFailed(AdType.RewardedVideo, new PluginError(rewardAdState.ordinal()));
+            runOnMainThread(this::preloadRewardedAd);
         }
-    }
-
-    @Override
-    protected void onShowAdSuccess(AdType adType) {
-        mActivity.nativeCallScript(ON_SHOW_AD_SUCCESS, adType.ordinal());
-    }
-
-    @Override
-    protected void onShowAdFailed(AdType adType, int errCode) {
-        mActivity.nativeCallScript(ON_SHOW_AD_FAILED, adType.ordinal(), errCode);
     }
 
     @Override
@@ -160,30 +149,29 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.Interstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.Interstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.Interstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         interstitialAdState = AdState.Loading;
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(mActivity, adId, adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        interstitialAdState = AdState.Loaded;
-                        mInterstitialAd = interstitialAd;
-                        Log.i(TAG, "InterstitialAd onAdLoaded");
-                    }
+        InterstitialAd.load(getActivity(), adId, adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                // The mInterstitialAd reference will be null until
+                // an ad is loaded.
+                interstitialAdState = AdState.Loaded;
+                mInterstitialAd = interstitialAd;
+                Log.i(TAG, "InterstitialAd onAdLoaded");
+            }
 
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error
-                        Log.i(TAG, "InterstitialAd " + loadAdError.getMessage());
-                        mInterstitialAd = null;
-                        interstitialAdState = AdState.None;
-                    }
-                });
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+                Log.i(TAG, "InterstitialAd " + loadAdError.getMessage());
+                mInterstitialAd = null;
+                interstitialAdState = AdState.None;
+            }
+        });
     }
 
     @Override
@@ -211,7 +199,7 @@ public class GoogleMobAd extends AdsWrapper {
                         if (AdState.Watched == interstitialAdState) {
                             onShowAdSuccess(AdType.Interstitial);
                         } else {
-                            onShowAdFailed(AdType.Interstitial, AdState.NotWatchComplete.ordinal());
+                            onShowAdFailed(AdType.Interstitial, new PluginError(AdState.NotWatchComplete.ordinal()));
                         }
                         interstitialAdState = AdState.None;
                         preloadInterstitialAd();
@@ -229,14 +217,14 @@ public class GoogleMobAd extends AdsWrapper {
                         Log.d(TAG, "InterstitialAd was clicked.");
                     }
                 });
-                mActivity.runOnMainThread(() -> {
+                runOnMainThread(() -> {
                     interstitialAdState = AdState.Watched;
-                    mInterstitialAd.show(mActivity);
+                    mInterstitialAd.show(getActivity());
                 });
             }
         } else {
-            onShowAdFailed(AdType.Interstitial, interstitialAdState.ordinal());
-            mActivity.runOnMainThread(this::preloadInterstitialAd);
+            onShowAdFailed(AdType.Interstitial, new PluginError(interstitialAdState.ordinal()));
+            runOnMainThread(this::preloadInterstitialAd);
         }
     }
 
@@ -249,30 +237,29 @@ public class GoogleMobAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.RewardedInterstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedInterstitial, AdState.Error.ordinal(),UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.RewardedInterstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         rewardInterstitialAdState = AdState.Loading;
         AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedInterstitialAd.load(mActivity, adId, adRequest,
-                new RewardedInterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedInterstitialAd rewardedInterstitialAd) {
-                        // The mRewardedInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        rewardInterstitialAdState = AdState.Loaded;
-                        mRewardedInterstitialAd = rewardedInterstitialAd;
-                        Log.i(TAG, "RewardInterstitialAd onAdLoaded");
-                    }
+        RewardedInterstitialAd.load(getActivity(), adId, adRequest, new RewardedInterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull RewardedInterstitialAd rewardedInterstitialAd) {
+                // The mRewardedInterstitialAd reference will be null until
+                // an ad is loaded.
+                rewardInterstitialAdState = AdState.Loaded;
+                mRewardedInterstitialAd = rewardedInterstitialAd;
+                Log.i(TAG, "RewardInterstitialAd onAdLoaded");
+            }
 
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error
-                        Log.i(TAG, "RewardInterstitialAd " + loadAdError.getMessage());
-                        mRewardedInterstitialAd = null;
-                        rewardInterstitialAdState = AdState.None;
-                    }
-                });
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+                Log.i(TAG, "RewardInterstitialAd " + loadAdError.getMessage());
+                mRewardedInterstitialAd = null;
+                rewardInterstitialAdState = AdState.None;
+            }
+        });
     }
 
     @Override
@@ -300,7 +287,7 @@ public class GoogleMobAd extends AdsWrapper {
                         if (AdState.Watched == rewardInterstitialAdState) {
                             onShowAdSuccess(AdType.RewardedInterstitial);
                         } else {
-                            onShowAdFailed(AdType.RewardedInterstitial, AdState.NotWatchComplete.ordinal());
+                            onShowAdFailed(AdType.RewardedInterstitial, new PluginError(AdState.NotWatchComplete.ordinal()));
                         }
                         rewardInterstitialAdState = AdState.None;
                         preloadRewardedInterstitialAd();
@@ -318,18 +305,18 @@ public class GoogleMobAd extends AdsWrapper {
                         Log.d(TAG, "RewardedInterstitialAd was clicked.");
                     }
                 });
-                mActivity.runOnMainThread(() -> mRewardedInterstitialAd.show(mActivity, (@NonNull RewardItem rewardItem) -> rewardInterstitialAdState = AdState.Watched));
+                runOnMainThread(() -> mRewardedInterstitialAd.show(getActivity(), (@NonNull RewardItem rewardItem) -> rewardInterstitialAdState = AdState.Watched));
             }
         } else {
-            onShowAdFailed(AdType.RewardedInterstitial, rewardInterstitialAdState.ordinal());
-            mActivity.runOnMainThread(this::preloadRewardedInterstitialAd);
+            onShowAdFailed(AdType.RewardedInterstitial, new PluginError(rewardInterstitialAdState.ordinal()));
+            runOnMainThread(this::preloadRewardedInterstitialAd);
         }
     }
 
     @Override
     protected void loadBannerAd(boolean autoShow) {
         super.loadBannerAd(autoShow);
-        mActivity.runOnMainThread(() -> {
+        runOnMainThread(() -> {
             if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
                 Log.d(TAG, "Banner loading or loaded");
                 return;
@@ -341,21 +328,20 @@ public class GoogleMobAd extends AdsWrapper {
             bannerAdState = AdState.Loading;
 
             if (null == mBannerAdView) {
-                LinearLayout layout = new LinearLayout(mActivity);
+                LinearLayout layout = new LinearLayout(getActivity());
                 layout.setGravity(LinearLayout.VERTICAL);
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.BOTTOM;
-                mActivity.addContentView(layout, params);
+                getActivity().addContentView(layout, params);
 
-                mBannerAdView = new AdView(mActivity);
+                mBannerAdView = new AdView(getActivity());
                 mBannerAdView.setAdUnitId(adId);
                 mBannerAdView.setAdSize(getAdSize());
 
                 layout.addView(mBannerAdView);
 
 
-                AdRequest adRequest = new AdRequest.Builder()
-                        .build();
+                AdRequest adRequest = new AdRequest.Builder().build();
                 mBannerAdView.loadAd(adRequest);
 
                 mBannerAdView.setAdListener(new AdListener() {
@@ -403,12 +389,12 @@ public class GoogleMobAd extends AdsWrapper {
     }
 
     private AdSize getAdSize() {
-        DisplayMetrics displayMetrics = mActivity.getResources().getDisplayMetrics();
+        DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
         float widthPixels = displayMetrics.widthPixels;
         float density = displayMetrics.density;
 
         int adWidth = (int) (widthPixels / density);
-        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(mActivity, adWidth);
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(getActivity(), adWidth);
     }
 
     @Override
@@ -416,10 +402,9 @@ public class GoogleMobAd extends AdsWrapper {
         super.showBannerAd();
         if (AdState.Loaded == bannerAdState) {
             if (null != mBannerAdView) {
-                mActivity.runOnMainThread(() -> {
+                runOnMainThread(() -> {
                     ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
-                    if (null != mViewGroup)
-                        mViewGroup.setVisibility(View.VISIBLE);
+                    if (null != mViewGroup) mViewGroup.setVisibility(View.VISIBLE);
 
                 });
             } else {
@@ -438,10 +423,9 @@ public class GoogleMobAd extends AdsWrapper {
     public void hideBannerAd() {
         super.hideBannerAd();
         if (null != mBannerAdView) {
-            mActivity.runOnMainThread(() -> {
+            runOnMainThread(() -> {
                 ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
-                if (null != mViewGroup)
-                    mViewGroup.setVisibility(View.INVISIBLE);
+                if (null != mViewGroup) mViewGroup.setVisibility(View.INVISIBLE);
             });
         }
     }
@@ -457,7 +441,7 @@ public class GoogleMobAd extends AdsWrapper {
         } else if (AdType.RewardedInterstitial == adType) {
             metaKey = META_GP_REWARD_INTERSTITIAL_AD_ID;
         }
-        String adId = mActivity.getMetaFromApplication(metaKey);
+        String adId = getParent().getStringMetaFromApp(metaKey);
         if (null == adId || adId.isEmpty()) {
             Log.d(Constants.TAG, "adId is null <adType=> " + adType);
             return null;

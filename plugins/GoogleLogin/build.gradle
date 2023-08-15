@@ -3,7 +3,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    namespace 'com.game.plugin.user.gp'
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -14,8 +15,8 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 33
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
 
@@ -36,6 +37,6 @@ android {
 
 dependencies {
     // Required for add Google admob ad
-    implementation "com.google.android.gms:play-services-games-v2:+"
+    implementation "com.google.android.gms:play-services-games-v2:17.0.0"
     api project(path: ':libGameBase')
 }

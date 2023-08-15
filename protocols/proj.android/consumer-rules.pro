@@ -21,35 +21,35 @@
 #-renamesourcefileattribute SourceFile
 
 # Proguard GameBase for release
--keep public class com.game.core.ScriptCallJavaBridge { *; }
--dontwarn com.game.**
+-keep public class com.pluginx.core.ScriptCallJavaBridge { *; }
+-dontwarn com.pluginx.**
 # natvie 方法不混淆
 -keepclasseswithmembernames class * {
     native <methods>;
 }
 
--keep public class com.game.core.base.SDKComponent {
+-keep public class com.pluginx.core.base.SDKComponent {
     public<methods>;
 }
 
--keep public class com.game.core.component.UserWrapper {
+-keep public class com.pluginx.core.component.UserWrapper {
     public<methods>;
 }
 
--keep class com.game.core.component.UserWrapper$* {
+-keep class com.pluginx.core.component.UserWrapper$* {
     <fields>;
 }
 
--keepnames public class com.game.core.component.Component
--keep public class com.game.core.component.PluginError {
+-keepnames public class com.pluginx.core.component.Component
+-keep public class com.pluginx.core.component.PluginError {
     <fields>;
 }
--keepnames public class com.game.core.component.PluginWrapper
+-keepnames public class com.pluginx.core.component.PluginWrapper
 
--keep public class com.game.core.component.ShareWrapper {
+-keep public class com.pluginx.core.component.ShareWrapper {
     public<methods>;
 }
 
--keep class com.game.core.component.ShareWrapper$.* {
+-keep class com.pluginx.core.component.ShareWrapper$.* {
     <fields>;
 }

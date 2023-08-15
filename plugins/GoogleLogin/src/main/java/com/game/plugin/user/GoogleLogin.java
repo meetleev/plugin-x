@@ -12,7 +12,7 @@ import com.google.android.gms.games.Player;
 
 
 public class GoogleLogin extends UserWrapper {
-    //    private static final String META_GP_AUTHENTICATION_SERVER_ID = "GP_AUTHENTICATION_SERVER_ID";
+//    private static final String META_GP_AUTHENTICATION_SERVER_ID = "GP_AUTHENTICATION_SERVER_ID";
     private static final String TAG = "GoogleLogin";
     private GamesSignInClient gamesSignInClient;
 

@@ -1,1 +1,1 @@
--keep public class com.game.googleMobAd.GoogleMobAd { *; }
+-keep public class com.pluginx.plugin.googleMobAd.GoogleMobAd { *; }

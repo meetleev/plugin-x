@@ -3,7 +3,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    namespace "com.pluginx.plugin.googleMobAd"
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -14,8 +15,8 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 33
+        minSdkVersion PROP_MIN_SDK_VERSION.toInteger()
+        targetSdkVersion PROP_TARGET_SDK_VERSION.toInteger()
         versionCode 1
         versionName "1.0"
 
@@ -29,13 +30,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     // Required for add Google admob ad
-    implementation 'com.google.android.gms:play-services-ads:21.3.0'
+    implementation 'com.google.android.gms:play-services-ads:22.2.0'
     api project(path: ':libGameBase')
 }
