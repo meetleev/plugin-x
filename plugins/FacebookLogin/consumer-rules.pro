@@ -1,3 +1,3 @@
--keep public class com.game.plugin.user.FacebookLogin {
+-keep public class com.pluginx.facebook.login.FacebookLogin {
     public <methods>;
 }

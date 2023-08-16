@@ -1,4 +1,4 @@
-package com.game.vungleAd;
+package com.pluginx.vungle.ads;
 
 import android.content.res.Configuration;
 import android.util.Log;
@@ -8,8 +8,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.game.core.Constants;
-import com.game.core.component.AdsWrapper;
+import com.pluginx.core.Constants;
+import com.pluginx.core.component.AdsWrapper;
+import com.pluginx.core.component.PluginError;
 import com.vungle.warren.AdConfig;
 import com.vungle.warren.BannerAdConfig;
 import com.vungle.warren.Banners;
@@ -34,10 +35,10 @@ public class VungleAd extends AdsWrapper {
     @Override
     protected void initSDK() {
         super.initSDK();
-        String appId = mActivity.getMetaFromApplication(META_VUNGLE_APP_ID);
+        String appId = getParent().getStringMetaFromApp(META_VUNGLE_APP_ID);
         Log.d(TAG, "appId" + appId);
         if (null != appId && !appId.isEmpty()) {
-            mActivity.runOnMainThread(() -> Vungle.init(appId, mActivity.getApplicationContext(), new InitCallback() {
+            runOnMainThread(() -> Vungle.init(appId, getActivity().getApplicationContext(), new InitCallback() {
                 @Override
                 public void onSuccess() {
                     Log.d(TAG, "onInitializationComplete");
@@ -69,7 +70,7 @@ public class VungleAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.RewardedVideo);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedVideo, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.RewardedVideo, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         rewardAdState = AdState.Loading;
@@ -92,11 +93,11 @@ public class VungleAd extends AdsWrapper {
     public void showRewardedVideoAd() {
         String adId = getAdUnitId(AdType.RewardedVideo);
         if (null == adId) {
-            onShowAdFailed(AdType.RewardedVideo, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.RewardedVideo, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         if (AdState.Loaded == rewardAdState) {
-            mActivity.runOnMainThread(() -> {
+            runOnMainThread(() -> {
                 if (Vungle.canPlayAd(adId)) {
                     Vungle.playAd(adId, null, new PlayAdCallback() {
                         @Override
@@ -120,7 +121,7 @@ public class VungleAd extends AdsWrapper {
                             if (AdState.Watched == rewardAdState)
                                 onShowAdSuccess(AdType.RewardedVideo);
                             else
-                                onShowAdFailed(AdType.RewardedVideo, AdState.NotWatchComplete.ordinal());
+                                onShowAdFailed(AdType.RewardedVideo, new PluginError(AdState.NotWatchComplete.ordinal()));
                             rewardAdState = AdState.None;
                             preloadRewardedAd();
                         }
@@ -156,8 +157,8 @@ public class VungleAd extends AdsWrapper {
                 }
             });
         } else {
-            onShowAdFailed(AdType.RewardedVideo, rewardAdState.ordinal());
-            mActivity.runOnMainThread(this::preloadRewardedAd);
+            onShowAdFailed(AdType.RewardedVideo, new PluginError(rewardAdState.ordinal()));
+            runOnMainThread(this::preloadRewardedAd);
         }
     }
 
@@ -170,7 +171,7 @@ public class VungleAd extends AdsWrapper {
         }
         String adId = getAdUnitId(AdType.Interstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.Interstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.Interstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         interstitialAdState = AdState.Loading;
@@ -193,11 +194,11 @@ public class VungleAd extends AdsWrapper {
     public void showInterstitialAd() {
         String adId = getAdUnitId(AdType.Interstitial);
         if (null == adId) {
-            onShowAdFailed(AdType.Interstitial, AdState.Error.ordinal(), UNIT_AD_EMPTY);
+            onShowAdFailed(AdType.Interstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
             return;
         }
         if (AdState.Loaded == interstitialAdState) {
-            mActivity.runOnMainThread(() -> {
+            runOnMainThread(() -> {
                 if (Vungle.canPlayAd(adId)) {
                     Vungle.playAd(adId, null, new PlayAdCallback() {
                         @Override
@@ -253,15 +254,15 @@ public class VungleAd extends AdsWrapper {
                 }
             });
         } else {
-            onShowAdFailed(AdType.Interstitial, interstitialAdState.ordinal());
-            mActivity.runOnMainThread(this::preloadInterstitialAd);
+            onShowAdFailed(AdType.Interstitial, new PluginError(interstitialAdState.ordinal()));
+            runOnMainThread(this::preloadInterstitialAd);
         }
     }
 
     @Override
     protected void loadBannerAd(boolean autoShow) {
         super.loadBannerAd(autoShow);
-        mActivity.runOnMainThread(() -> {
+        runOnMainThread(() -> {
             if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
                 Log.d(TAG, "Banner loading or loaded");
                 return;
@@ -300,17 +301,17 @@ public class VungleAd extends AdsWrapper {
 
     private void makeBannerAdContainerNonNull() {
         if (null == bannerLayout) {
-            bannerLayout = new LinearLayout(mActivity);
+            bannerLayout = new LinearLayout(getActivity());
             bannerLayout.setGravity(LinearLayout.VERTICAL);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.BOTTOM;
-            mActivity.addContentView(bannerLayout, params);
+            getActivity().addContentView(bannerLayout, params);
         }
     }
 
 
     private boolean isTabletDevice() {
-        return (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >=
+        return (getActivity().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >=
                 Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
@@ -323,13 +324,13 @@ public class VungleAd extends AdsWrapper {
         }
         if (AdState.Loaded == bannerAdState) {
             if (null != mBannerAdView) {
-                mActivity.runOnMainThread(() -> {
+                runOnMainThread(() -> {
                     ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
                     if (null != mViewGroup)
                         mViewGroup.setVisibility(View.VISIBLE);
                 });
             } else {
-                mActivity.runOnMainThread(() -> {
+                runOnMainThread(() -> {
                     makeBannerAdConfigNonNull();
                     if (Banners.canPlayAd(adId, bannerAdConfig.getAdSize())) {
                         _showBannerAd(adId);
@@ -339,7 +340,7 @@ public class VungleAd extends AdsWrapper {
                 });
             }
         } else {
-            mActivity.runOnMainThread(() -> {
+            runOnMainThread(() -> {
                 if (null != mBannerAdView)
                     mBannerAdView.destroyAd();
                 mBannerAdView = null;
@@ -403,7 +404,7 @@ public class VungleAd extends AdsWrapper {
     public void hideBannerAd() {
         super.hideBannerAd();
         if (null != mBannerAdView) {
-            mActivity.runOnMainThread(() -> {
+            runOnMainThread(() -> {
                 ViewGroup mViewGroup = (ViewGroup) mBannerAdView.getParent();
                 if (null != mViewGroup)
                     mViewGroup.setVisibility(View.INVISIBLE);
@@ -422,7 +423,7 @@ public class VungleAd extends AdsWrapper {
         } else if (AdType.RewardedInterstitial == adType) {
             metaKey = META_VUNGLE_REWARD_INTERSTITIAL_AD_ID;
         }
-        String adId = mActivity.getMetaFromApplication(metaKey);
+        String adId = getParent().getStringMetaFromApp(metaKey);
         if (null == adId || adId.isEmpty()) {
             Log.d(Constants.TAG, "adId is null <adType=> " + adType);
             return null;

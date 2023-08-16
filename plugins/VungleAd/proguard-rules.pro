@@ -19,8 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep public class com.game.vungleAd.VungleAd { *; }
-
+-keep public class com.pluginx.vungle.ads.VungleAd {
+    public <methods>;
+}
 # Vungle
 -dontwarn com.vungle.warren.downloader.DownloadRequestMediator$Status
 -dontwarn com.vungle.warren.error.VungleError$ErrorCode

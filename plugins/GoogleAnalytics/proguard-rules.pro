@@ -19,4 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep public class com.game.firebase.GoogleAnalytics { *; }
+-keep public class com.pluginx.google.analytics.GoogleAnalytics {
+    public <methods>;
+}

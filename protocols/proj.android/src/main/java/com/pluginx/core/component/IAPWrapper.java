@@ -5,6 +5,7 @@ import android.util.Log;
 import com.pluginx.core.Constants;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
+import com.pluginx.core.BuildConfig;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,10 +19,6 @@ import java.util.Set;
 public class IAPWrapper extends PluginWrapper {
     public enum ProductState {
         None, Pending, Purchased,
-    }
-
-    public enum PayResult {
-        Success, Fail, Cancel,
     }
 
     protected final Set<String> autoConsumeProducts = new HashSet<>();
@@ -38,8 +35,7 @@ public class IAPWrapper extends PluginWrapper {
         Log.d(Constants.TAG, "onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());
-        if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase()))
-            return;
+        if (!getClass().getSimpleName().toLowerCase().contains(sdkName.toLowerCase())) return;
         if (Constants.PAYMENT_PRODUCT.equals(eventName)) {
             String productId = (String) objects[1];
             Log.d(Constants.TAG, "payment " + productId);
@@ -98,7 +94,11 @@ public class IAPWrapper extends PluginWrapper {
             productStateMap.put(sku, ProductState.None);
     }
 
-    protected void onPaymentResult(PayResult payResult, PluginError pluginError) {
-        getParent().nativeCallScript(ON_PAYMENT_RESULT, payResult.ordinal(), pluginError);
+    protected void onPaymentResult(PluginStatusCodes statusCodes, PluginError pluginError) {
+        getParent().nativeCallScript(ON_PAYMENT_RESULT, statusCodes, pluginError);
+        if (BuildConfig.USED_NATIVE)
+            onNativePaymentResult(statusCodes.ordinal(), null != pluginError ? pluginError.toString() : null);
     }
+
+    public native void onNativePaymentResult(int statusCodes, String pluginError);
 }

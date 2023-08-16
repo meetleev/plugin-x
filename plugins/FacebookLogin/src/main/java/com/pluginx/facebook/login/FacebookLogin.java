@@ -1,4 +1,4 @@
-package com.game.plugin.user;
+package com.pluginx.facebook.login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,8 +14,8 @@ import com.facebook.GraphRequest;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.game.core.component.PluginError;
-import com.game.core.component.UserWrapper;
+import com.pluginx.core.component.PluginError;
+import com.pluginx.core.component.UserWrapper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,20 +50,6 @@ public class FacebookLogin extends UserWrapper {
                 onLoginFailed(new PluginError(e.getLocalizedMessage()));
             }
         });
-
-        /*try {
-            PackageInfo info = getActivity().getPackageManager().getPackageInfo("com.club.luckyslot",                  //Insert your own package name.
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-
-        }*/
     }
 
     @Override

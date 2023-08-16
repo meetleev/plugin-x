@@ -1,10 +1,10 @@
-package com.game.plugin.user;
+package com.pluginx.google.login;
 
 
 import android.util.Log;
 
-import com.game.core.component.PluginError;
-import com.game.core.component.UserWrapper;
+import com.pluginx.core.component.PluginError;
+import com.pluginx.core.component.UserWrapper;
 import com.google.android.gms.games.GamesSignInClient;
 import com.google.android.gms.games.PlayGames;
 import com.google.android.gms.games.PlayGamesSdk;
@@ -34,7 +34,7 @@ public class GoogleLogin extends UserWrapper {
     public void logIn() {
         super.logIn();
         Log.d(TAG, "logIn");
-        getParent().runOnMainThread(() -> gamesSignInClient.isAuthenticated().addOnCompleteListener(task -> {
+        runOnMainThread(() -> gamesSignInClient.isAuthenticated().addOnCompleteListener(task -> {
             boolean isAuthenticated = (task.isSuccessful() && task.getResult().isAuthenticated());
 
             if (isAuthenticated) {

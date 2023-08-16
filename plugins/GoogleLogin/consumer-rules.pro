@@ -1,3 +1,3 @@
--keep public class com.game.plugin.user.GoogleLogin {
+-keep public class com.pluginx.google.login.GoogleLogin {
     public <methods>;
 }

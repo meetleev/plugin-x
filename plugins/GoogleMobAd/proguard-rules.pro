@@ -19,4 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keep public class com.pluginx.plugin.googleMobAd.GoogleMobAd { *; }
+-keep public class com.pluginx.google.ads.GoogleMobAd {
+    public <methods>;
+}

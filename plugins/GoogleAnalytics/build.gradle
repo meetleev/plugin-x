@@ -3,7 +3,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    namespace 'com.pluginx.google.analytics'
+    compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -14,8 +15,8 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
 
@@ -24,23 +25,23 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:31.1.0')
+    implementation(platform("com.google.firebase:firebase-bom:32.2.2"))
 
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
     // Declare the dependency for the Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation("com.google.firebase:firebase-analytics")
     api project(path: ':libGameBase')
 }

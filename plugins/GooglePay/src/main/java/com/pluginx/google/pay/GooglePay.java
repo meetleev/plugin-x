@@ -1,4 +1,4 @@
-package com.game.googlePay;
+package com.pluginx.google.pay;
 
 import android.util.Log;
 
@@ -14,8 +14,8 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
 import com.android.billingclient.api.QueryPurchasesParams;
-import com.game.core.component.IAPWrapper;
-import com.game.core.component.PluginError;
+import com.pluginx.core.component.IAPWrapper;
+import com.pluginx.core.component.PluginError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import androidx.annotation.NonNull;
 
 import static com.android.billingclient.api.BillingClient.FeatureType.PRODUCT_DETAILS;
+
+import androidx.annotation.NonNull;
 
 public class GooglePay extends IAPWrapper implements BillingClientStateListener, ProductDetailsResponseListener {
     private static final String TAG = "GooglePay";
@@ -49,16 +50,16 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
             if (null != purchases) {
                 processPurchaseList(purchases, null);
             } else {
-                onPaymentResult(PayResult.Fail, new PluginError(code, billingResult.getDebugMessage()));
+                onPaymentResult(PluginStatusCodes.Failed, new PluginError(code, billingResult.getDebugMessage()));
                 Log.d(TAG, "Null Purchase List Returned from OK response!");
             }
         } else {
             if (BillingClient.BillingResponseCode.USER_CANCELED == billingResult.getResponseCode()) {
                 if (null != purchases)
-                    onPaymentResult(PayResult.Cancel, new PluginError(code, billingResult.getDebugMessage()));
+                    onPaymentResult(PluginStatusCodes.Canceled, new PluginError(code, billingResult.getDebugMessage()));
             } else {
                 if (null != purchases)
-                    onPaymentResult(PayResult.Fail, new PluginError(code, billingResult.getDebugMessage()));
+                    onPaymentResult(PluginStatusCodes.Failed, new PluginError(code, billingResult.getDebugMessage()));
             }
             Log.d(TAG, "BillingResult [" + billingResult.getResponseCode() + "]: " + billingResult.getDebugMessage());
         }
@@ -68,9 +69,9 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
     @Override
     protected void initSDK() {
         super.initSDK();
-        mActivity.runOnMainThread(() -> {
+        runOnMainThread(() -> {
             // init BillingClient
-            billingClient = BillingClient.newBuilder(mActivity).setListener(purchasesUpdatedListener).enablePendingPurchases().build();
+            billingClient = BillingClient.newBuilder(getActivity()).setListener(purchasesUpdatedListener).enablePendingPurchases().build();
             billingClient.startConnection(this);
         });
     }
@@ -81,7 +82,7 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
      */
     private void retryBillingServiceConnection() {
         connectionError = null;
-        mActivity.runOnMainThread(() -> billingClient.startConnection(this), reconnectMilliseconds);
+        runOnMainThread(() -> billingClient.startConnection(this), reconnectMilliseconds);
         reconnectMilliseconds = Math.min(reconnectMilliseconds * 2, RECONNECT_TIMER_MAX_TIME_MILLISECONDS);
     }
 
@@ -115,11 +116,11 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
         super.paymentWithProductId(productId);
         Log.d(TAG, "paymentWithProductId productId: " + productId);
         if (null != connectionError) {
-            onPaymentResult(PayResult.Fail, connectionError);
+            onPaymentResult(PluginStatusCodes.Failed, connectionError);
         } else {
             ProductDetails productDetails = productDetailsMap.get(productId);
             if (null != productDetails) {
-                mActivity.runOnMainThread(() -> {
+                runOnMainThread(() -> {
                     // Retrieve a value for "productDetails" by calling queryProductDetailsAsync()
                     // Get the offerToken of the selected offer
                     /*String offerToken = productDetails
@@ -129,7 +130,7 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
                     List<BillingFlowParams.ProductDetailsParams> productDetailsParams = new ArrayList<>();
                     productDetailsParams.add(BillingFlowParams.ProductDetailsParams.newBuilder().setProductDetails(productDetails).build());
                     BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder().setProductDetailsParamsList(productDetailsParams).setIsOfferPersonalized(true).build();
-                    BillingResult br = billingClient.launchBillingFlow(mActivity, billingFlowParams);
+                    BillingResult br = billingClient.launchBillingFlow(getActivity(), billingFlowParams);
                     if (br.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                         billingFlowInProcess = true;
                     } else {
@@ -275,21 +276,17 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
                 Log.e(TAG, "Unknown product " + pd + ". Check to make " + "sure product matches products in the Play developer console.");
             } else {
                 switch (purchase.getPurchaseState()) {
-                    case Purchase.PurchaseState.PENDING:
-                        productState = ProductState.Pending;
-                        break;
-                    case Purchase.PurchaseState.UNSPECIFIED_STATE:
-                        productState = ProductState.None;
-                        break;
-                    case Purchase.PurchaseState.PURCHASED: {
+                    case Purchase.PurchaseState.PENDING -> productState = ProductState.Pending;
+                    case Purchase.PurchaseState.UNSPECIFIED_STATE ->
+                            productState = ProductState.None;
+                    case Purchase.PurchaseState.PURCHASED -> {
                         if (ProductState.Purchased != productState) {
-                            onPaymentResult(PayResult.Success, null);
+                            onPaymentResult(PluginStatusCodes.Succeed, null);
                             productState = ProductState.Purchased;
                         }
-                        break;
                     }
-                    default:
-                        Log.e(TAG, "Purchase in unknown state: " + purchase.getPurchaseState());
+                    default ->
+                            Log.e(TAG, "Purchase in unknown state: " + purchase.getPurchaseState());
                 }
                 productStateMap.put(pd, productState);
             }
@@ -400,9 +397,9 @@ public class GooglePay extends IAPWrapper implements BillingClientStateListener,
     }
 
     @Override
-    protected void onPaymentResult(PayResult payResult, PluginError pluginError) {
-        Log.d(TAG, "onPaymentResult " + payResult + " " + pluginError);
-        super.onPaymentResult(payResult, pluginError);
+    protected void onPaymentResult(PluginStatusCodes statusCodes, PluginError pluginError) {
+        Log.d(TAG, "onPaymentResult " + statusCodes + " " + pluginError);
+        super.onPaymentResult(statusCodes, pluginError);
     }
 
     @Override

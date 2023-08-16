@@ -21,7 +21,9 @@
 #-renamesourcefileattribute SourceFile
 
 # Proguard GameBase for release
--keep public class com.pluginx.core.ScriptCallJavaBridge { *; }
+-keep public class com.pluginx.core.ScriptCallJavaBridge {
+    public <methods>;
+}
 -dontwarn com.pluginx.**
 # natvie 方法不混淆
 -keepclasseswithmembernames class * {

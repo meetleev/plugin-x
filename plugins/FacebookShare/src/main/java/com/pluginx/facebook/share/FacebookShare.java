@@ -1,4 +1,4 @@
-package com.game.plugin.share;
+package com.pluginx.facebook.share;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,9 +20,9 @@ import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.model.ShareVideo;
 import com.facebook.share.model.ShareVideoContent;
 import com.facebook.share.widget.ShareDialog;
-import com.game.core.base.TaskExecutor;
-import com.game.core.component.PluginError;
-import com.game.core.component.ShareWrapper;
+import com.pluginx.core.base.TaskExecutor;
+import com.pluginx.core.component.PluginError;
+import com.pluginx.core.component.ShareWrapper;
 
 import java.io.InputStream;
 import java.util.concurrent.Callable;

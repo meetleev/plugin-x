@@ -1,1 +1,3 @@
--keep public class com.pluginx.plugin.googleMobAd.GoogleMobAd { *; }
+-keep public class com.pluginx.google.ads.GoogleMobAd {
+    public <methods>;
+}

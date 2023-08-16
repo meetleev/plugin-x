@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace "com.pluginx.plugin.googleMobAd"
+    namespace "com.pluginx.google.ads"
     compileSdk PROP_COMPILE_SDK_VERSION.toInteger()
     sourceSets {
         main {
@@ -25,7 +25,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

@@ -1,4 +1,4 @@
-package com.pluginx.plugin.googleMobAd;
+package com.pluginx.google.ads;
 
 import android.util.DisplayMetrics;
 import android.util.Log;

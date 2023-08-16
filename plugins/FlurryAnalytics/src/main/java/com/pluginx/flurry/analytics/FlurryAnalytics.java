@@ -1,9 +1,9 @@
-package com.game.flurry;
+package com.pluginx.flurry.analytics;
 
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
-import com.game.core.component.AnalyticsWrapper;
+import com.pluginx.core.component.AnalyticsWrapper;
 
 import java.util.HashMap;
 

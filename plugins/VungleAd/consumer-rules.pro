@@ -1,4 +1,6 @@
--keep public class com.game.vungleAd.VungleAd { *; }
+-keep public class com.pluginx.vungle.ads.VungleAd {
+    public <methods>;
+}
 
 # Vungle
 -dontwarn com.vungle.warren.downloader.DownloadRequestMediator$Status
