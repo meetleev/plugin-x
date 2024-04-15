@@ -1,6 +1,6 @@
 package com.pluginx.core.component;
 
-import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -20,8 +19,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static android.app.Activity.RESULT_OK;
-
 public class PhotoComponent extends Component {
     public interface PhotoBrowserResultListener {
         void onResult(String imageBase64);
@@ -31,11 +28,6 @@ public class PhotoComponent extends Component {
     private final static int FILE_CHOOSER_RESULT_CODE = 10;// 表单的结果回调
     private PhotoBrowserResultListener mPhotoBrowserResultListener;
 
-    public String getPathBeforeKitKat(Intent data) {
-        Log.i(Tag, "handleImageBeforeKitKat");
-        Uri uri = data.getData();
-        return getDataColumn(this.getActivity(), uri, null, null);
-    }
 
     /**
      * Get a file path from a Uri. This will get the the path for Storage Access
@@ -46,13 +38,10 @@ public class PhotoComponent extends Component {
      * @param uri     The Uri to query.
      * @author paulburke
      */
-    @TargetApi(19)
     public String getPathOnKitKat(final Context context, final Uri uri) {
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -69,8 +58,7 @@ public class PhotoComponent extends Component {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -90,9 +78,7 @@ public class PhotoComponent extends Component {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
+                final String[] selectionArgs = new String[]{split[1]};
 
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
@@ -119,25 +105,20 @@ public class PhotoComponent extends Component {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public String getDataColumn(Context context, Uri uri, String selection,
-                                String[] selectionArgs) {
+    public String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
 
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
+        final String[] projection = {column};
 
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
         } finally {
-            if (cursor != null)
-                cursor.close();
+            if (cursor != null) cursor.close();
         }
         return null;
     }
@@ -169,7 +150,7 @@ public class PhotoComponent extends Component {
 
     public String getFileBase64(String imgFile) {
         Log.i(Tag, "imagePath =>" + imgFile);
-        InputStream inputStream = null;
+        InputStream inputStream;
         Bitmap bitmap = null;
         try {
             inputStream = new FileInputStream(imgFile);
@@ -179,10 +160,11 @@ public class PhotoComponent extends Component {
             e.printStackTrace();
         }
 
-        StringBuffer string = new StringBuffer();
+        StringBuilder string = new StringBuilder();
         ByteArrayOutputStream bStream = new ByteArrayOutputStream();
 
         try {
+            assert bitmap != null;
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
             bStream.flush();
             bStream.close();
@@ -200,25 +182,15 @@ public class PhotoComponent extends Component {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("image/*");
-        this.getActivity().startActivityForResult(
-                Intent.createChooser(i, "File Browser"),
-                FILE_CHOOSER_RESULT_CODE);
+        this.getActivity().startActivityForResult(Intent.createChooser(i, "File Browser"), FILE_CHOOSER_RESULT_CODE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(Tag, "onActivityResult-> " + data.getData());
         if (requestCode == FILE_CHOOSER_RESULT_CODE) {
-            if (resultCode == RESULT_OK) {
-                //判断手机系统版本号
-                String imagePath = null;
-                if (Build.VERSION.SDK_INT >= 19) {
-                    //4.4及以上系统使用这个方法处理图片
-                    imagePath = getPathOnKitKat(this.getActivity(), data.getData());
-                } else {
-                    //4.4以下系统使用这个放出处理图片
-                    imagePath = getPathBeforeKitKat(data);
-                }
+            if (resultCode == Activity.RESULT_OK) {
+                String imagePath = getPathOnKitKat(this.getActivity(), data.getData());
                 if (null != imagePath) {
                     String base64string = getFileBase64(imagePath);
                     if (null != this.mPhotoBrowserResultListener)

@@ -4,20 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.pluginx.core.BuildConfig;
-import com.pluginx.core.Constants;
 import com.pluginx.core.component.Component;
 import com.pluginx.core.component.Permissions;
 import com.pluginx.core.component.PluginWrapper;
 import com.pluginx.core.utils.Function;
 import com.pluginx.core.utils.NotificationCenter;
-import com.pluginx.core.utils.ObserverListener;
-
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -28,29 +23,14 @@ public class SDKComponent extends Component {
         void run(Runnable runnable);
     }
 
-    public interface IJavaCallScriptCallBack {
-        void run(String msg);
-    }
-
-    private ArrayList<Component> mComponents;
-    private Handler mMainThreadHandler;
+    private final ArrayList<Component> mComponents;
+    private final Handler mMainThreadHandler;
     private WeakReference<Activity> mActivity = null;
     private IGameThreadCallBack mGameThreadCallBack;
-    private IJavaCallScriptCallBack mJavaCallScriptCallBack;
 
     public Activity getActivity() {
         return this.mActivity.get();
     }
-
-    protected ObserverListener mObserverListener = (eventName, objects) -> {
-        Log.d(Constants.TAG, "onMessage " + eventName);
-        if (eventName.equals(Constants.SHOW_TOAST)) {
-            Log.d(Constants.TAG, "showToast");
-            final String msg = (String) objects[0];
-            final int duration = 1 < objects.length ? (int) objects[1] : Toast.LENGTH_SHORT;
-            showToast(msg, duration);
-        }
-    };
 
     public SDKComponent() {
         mMainThreadHandler = new Handler();
@@ -59,36 +39,28 @@ public class SDKComponent extends Component {
 
     public void init(Activity activity) {
         mActivity = new WeakReference<>(activity);
-        if (BuildConfig.USED_NATIVE) register();
+        register();
         onLoad();
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack) {
         mActivity = new WeakReference<>(activity);
         mGameThreadCallBack = gameThreadCallBack;
-        if (BuildConfig.USED_NATIVE) register();
-        onLoad();
-    }
-
-    public void init(Activity activity, IGameThreadCallBack gameThreadCallBack, IJavaCallScriptCallBack javaCallScriptCallBack) {
-        mActivity = new WeakReference<>(activity);
-        mGameThreadCallBack = gameThreadCallBack;
-        mJavaCallScriptCallBack = javaCallScriptCallBack;
-        if (BuildConfig.USED_NATIVE) register();
+        register();
         onLoad();
     }
 
 
     public void runOnMainThread(Runnable r) {
-        if (null != mMainThreadHandler) {
-            mMainThreadHandler.post(r);
-        }
+        mMainThreadHandler.post(r);
     }
 
     public void runOnMainThread(Runnable r, long delayMillis) {
-        if (null != mMainThreadHandler) {
-            mMainThreadHandler.postDelayed(r, delayMillis);
-        }
+        mMainThreadHandler.postDelayed(r, delayMillis);
+    }
+
+    public void runOnGLThread(Runnable runnable) {
+        if (null != mGameThreadCallBack) mGameThreadCallBack.run(runnable);
     }
 
     public <T extends Component> T getComponent(String componentName) {
@@ -108,7 +80,7 @@ public class SDKComponent extends Component {
     public <T extends Component> T addComponent(T component) {
         if (!isExistComponent(component)) {
             component.setActivity(getActivity());
-            component.setParent(this);
+            component.setRoot(this);
             component.onLoad();
             mComponents.add(component);
         }
@@ -176,38 +148,8 @@ public class SDKComponent extends Component {
 
     @Override
     public void onLoad() {
-        NotificationCenter.getInstance().registerObserver(Constants.SHOW_TOAST, this.mObserverListener, this);
         addComponent(Permissions.class);
 //        addComponent(NetworkStatus.class);
-    }
-
-    public void runOnGLThread(Runnable runnable) {
-        if (null != mGameThreadCallBack) mGameThreadCallBack.run(runnable);
-    }
-
-    public void nativeCallScript(Object... objects) {
-        StringBuilder call = new StringBuilder("ccx.eventManager.emit(");
-        for (Object obj : objects) {
-            if (null == obj) continue;
-            if (obj.getClass().isEnum()) {
-                call.append(((Enum<?>) obj).ordinal()).append(",");
-            } else if (obj.getClass().isPrimitive()) {
-                if (obj.getClass().equals(Character.class)) {
-                    call.append("'").append(obj).append("', ");
-                } else {
-                    call.append(obj).append(", ");
-                }
-            } else {
-                call.append("'").append(obj).append("', ");
-            }
-        }
-        call = new StringBuilder(call.substring(0, call.length() - 1) + ")");
-        Log.d(Constants.TAG, "nativeCallScript -> " + call);
-
-        final String call_ = call.toString();
-        this.runOnGLThread(() -> {
-            if (null != mJavaCallScriptCallBack) mJavaCallScriptCallBack.run(call_);
-        });
     }
 
     public DisplayMetrics getDisplayMetrics() {

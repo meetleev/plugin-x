@@ -2,37 +2,153 @@
 // Created by Lee on 2023/7/8.
 //
 
-#include "PluginMgr.h"
 #include "PluginHelper.h"
-#include "cocos2d.h"
-#include "JniUtil.h"
-
-using namespace cocos2d;
+#include "platform/BasePlatform.h"
+#include "SDKComponentHelper.h"
+#include "SDKEventManager.h"
 
 NS_PLUGIN_X_BEGIN
-
-jobject g_plugin = nullptr;
-
-extern "C" {
-
-    JNIEXPORT void JNICALL Java_com_game_core_base_SDKComponent_register(JNIEnv *env, jobject job)
-    {
-        g_plugin = env->NewGlobalRef(job);
+    bool PluginHelper::showToast(const std::string &msg) {
+        return PluginHelper::showToast(msg, -1);
     }
-}
 
-jobject PluginHelper::addComponent(const char * componentName)
-{
-    cocos2d::JniMethodInfo t;
-    if (JniUtil::getGlobalMethodInfo(t, g_plugin, "addComponent", "(Ljava/lang/String;)Lcom/game/core/component/Component;")) {
-        jstring str = t.env->NewStringUTF(componentName);
-        jobject o = t.env->CallObjectMethod(g_plugin, t.methodID, str);
-        t.env->DeleteLocalRef(str);
-        if (nullptr != o) {
-            return o;
+    bool PluginHelper::showToast(const std::string &msg, int duration) {
+        return SDKComponentHelper::showToast(msg, duration);
+    }
+
+    bool PluginHelper::showBannerAd(const std::string &componentName) {
+        if (!componentName.empty()) {
+            if (SDKComponentHelper::showBannerAd(componentName)) {
+                return true;
+            }
         }
+        return false;
     }
-    return nullptr;
-}
+
+    bool PluginHelper::hideBannerAd(const std::string &componentName) {
+        if (!componentName.empty()) {
+            if (SDKComponentHelper::hideBannerAd(componentName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool PluginHelper::showRewardedVideoAd(const std::string &componentName,
+                                           const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onShowAd, callback);
+            if (SDKComponentHelper::showRewardedVideoAd(componentName)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onShowAd);
+        }
+        return false;
+    }
+
+    bool PluginHelper::showRewardedInterstitialAd(const std::string &componentName,
+                                                  const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onShowAd, callback);
+            if (SDKComponentHelper::showRewardedInterstitialAd(componentName)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onShowAd);
+        }
+        return false;
+    }
+
+    bool PluginHelper::showInterstitialAd(const std::string &componentName,
+                                          const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onShowAd, callback);
+            if (SDKComponentHelper::showInterstitialAd(componentName)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onShowAd);
+        }
+        return false;
+    }
+
+    bool PluginHelper::showFloatAd(const std::string &componentName) {
+        if (!componentName.empty()) {
+            return SDKComponentHelper::showFloatAd(componentName);
+        }
+        return false;
+    }
+
+    bool PluginHelper::hideFloatAd(const std::string &componentName) {
+        if (!componentName.empty()) {
+            return SDKComponentHelper::hideFloatAd(componentName);
+        }
+        return false;
+    }
+
+    bool PluginHelper::signIn(const std::string &componentName, const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onLogin, callback);
+            if (SDKComponentHelper::signIn(componentName)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onLogin);
+        }
+        return false;
+    }
+
+    bool PluginHelper::signOut(const std::string &componentName, const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onLogin, callback);
+            if (SDKComponentHelper::signOut(componentName)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onLogin);
+        }
+        return false;
+    }
+
+    bool PluginHelper::share(const std::string &componentName, const std::string &shareJsonContent,
+                             const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onShare, callback);
+            if (SDKComponentHelper::share(componentName, shareJsonContent)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onShare);
+        }
+        return false;
+    }
+    bool PluginHelper::paymentWithProductId(const std::string &componentName,
+                                                const std::string &productId) {
+        return PluginHelper::paymentWithProductId(componentName, productId, nullptr);
+    }
+
+    void PluginHelper::addPaymentResultListener(const pluginx::PlatformCallBack &callback) {
+        SDKEventManager::Instance().addListener(SDKEventType::onPayment, callback);
+    }
+
+    bool PluginHelper::paymentWithProductId(const std::string &componentName,
+                                            const std::string &productId,
+                                            const PlatformCallBack &callback) {
+        if (!componentName.empty()) {
+            SDKEventManager::Instance().addOnceListener(SDKEventType::onPayment, callback);
+            if (SDKComponentHelper::paymentWithProductId(componentName, productId)) {
+                return true;
+            }
+            SDKEventManager::Instance().removeListener(SDKEventType::onPayment);
+        }
+        return false;
+    }
+
+    bool PluginHelper::logEvent(const std::string &componentName, const std::string &eventId) {
+        return PluginHelper::logEvent(componentName, eventId, "");
+    }
+
+    bool PluginHelper::logEvent(const std::string &componentName, const std::string &eventId,
+                                const std::string &event) {
+        if (!componentName.empty()) {
+            return SDKComponentHelper::logEvent(componentName, eventId, event);
+        }
+        return false;
+    }
 
 NS_PLUGIN_X_END

@@ -32,7 +32,7 @@ public class NavigateToApp extends Component {
     private final HashMap<String, String> mDownloadManagerIdsMap = new HashMap<>();
 
     public SDKComponent getParent() {
-        return (SDKComponent) (parent.get());
+        return (SDKComponent) (root.get());
     }
 
     @Override

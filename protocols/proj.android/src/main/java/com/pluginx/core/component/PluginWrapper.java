@@ -7,12 +7,11 @@ import com.pluginx.core.utils.NotificationCenter;
 import java.util.Hashtable;
 
 public class PluginWrapper extends Component {
-    public enum PluginStatusCodes {
-        Succeed, Failed, Canceled,
+    public enum PluginStatus {
+        Success, Failed, Canceled,
     }
-
     public SDKComponent getParent() {
-        return (SDKComponent)(parent.get());
+        return (SDKComponent) (root.get());
     }
 
     public void runOnMainThread(Runnable r) {

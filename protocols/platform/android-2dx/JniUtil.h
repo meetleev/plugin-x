@@ -8,8 +8,7 @@
 #include <string>
 #include "PluginMacros.h"
 #include <jni.h>
-#include "platform/java/jni/JniHelper.h"
-#include <android/log.h>
+#include <platform/android/jni/JniHelper.h>
 
 #define  LOG_TAG    "Plugin Debug"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
@@ -22,14 +21,8 @@ public:
 
     static jobject createJavaObjectWithActivity(const char *classname);
 
-    static bool getGlobalMethodInfo(cc::JniMethodInfo &methodInfo, jobject javaInstance,
+    static bool getGlobalMethodInfo(cocos2d::JniMethodInfo &methodInfo, jobject javaInstance,
                              const char *methodName, const char *paramCode);
-    static bool getStaticMethodInfo(cc::JniMethodInfo &methodInfo,
-                                             const char *className,
-                                             const char *methodName,
-                                             const char *paramCode);
-private:
-    JniUtil(){}
 };
 
 NS_PLUGIN_X_END

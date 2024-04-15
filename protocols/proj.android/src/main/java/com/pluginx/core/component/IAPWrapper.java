@@ -5,7 +5,6 @@ import android.util.Log;
 import com.pluginx.core.Constants;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
-import com.pluginx.core.BuildConfig;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ public class IAPWrapper extends PluginWrapper {
     protected List<String> inAppProducts;
     protected List<String> subscriptionProducts;
 
-    private final static String ON_PAYMENT_RESULT = "onPaymentResult";
     private final static String IN_APP_PRODUCTS = "inAppProducts";
     private final static String AUTO_CONSUME_PRODUCTS = "autoConsumeProducts";
     private final static String SUBSCRIPTION_PRODUCTS = "subscriptionProducts";
@@ -43,6 +41,7 @@ public class IAPWrapper extends PluginWrapper {
         }
     };
 
+
     @Override
     public void onLoad() {
         super.onLoad();
@@ -56,6 +55,7 @@ public class IAPWrapper extends PluginWrapper {
     }
 
     public void paymentWithProductId(String productId) {
+        Log.d(Constants.TAG, "paymentWithProductId " + productId);
     }
 
     @Override
@@ -94,11 +94,9 @@ public class IAPWrapper extends PluginWrapper {
             productStateMap.put(sku, ProductState.None);
     }
 
-    protected void onPaymentResult(PluginStatusCodes statusCodes, PluginError pluginError) {
-        getParent().nativeCallScript(ON_PAYMENT_RESULT, statusCodes, pluginError);
-        if (BuildConfig.USED_NATIVE)
-            onNativePaymentResult(statusCodes.ordinal(), null != pluginError ? pluginError.toString() : null);
+    protected void onPaymentResult(PluginStatus statusCodes, PluginError pluginError) {
+        onPaymentResult(statusCodes.ordinal(), null != pluginError ? new PluginResult(pluginError).toString() : null);
     }
 
-    public native void onNativePaymentResult(int statusCodes, String pluginError);
+    public native void onPaymentResult(int statusCodes, String pluginResult);
 }

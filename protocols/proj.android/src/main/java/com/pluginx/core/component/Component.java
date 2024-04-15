@@ -2,8 +2,6 @@ package com.pluginx.core.component;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.Bundle;
 import android.view.KeyEvent;
 
 
@@ -24,21 +22,11 @@ interface IComponent {
 
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
 
-
-    void onNewIntent(Intent intent);
-
     void onRestart();
 
     void onStop();
 
-
     boolean onKeyDown(int keyCode, KeyEvent event);
-
-    void onConfigurationChanged(Configuration newConfig);
-
-    void onRestoreInstanceState(Bundle savedInstanceState);
-
-    void onSaveInstanceState(Bundle outState);
 
     void onStart();
 
@@ -48,7 +36,7 @@ interface IComponent {
 }
 
 public class Component implements IComponent {
-    protected WeakReference<Component> parent;
+    protected WeakReference<Component> root;
     protected WeakReference<Activity> mActivity;
     protected boolean bDebug = false;
 
@@ -75,12 +63,12 @@ public class Component implements IComponent {
         return this.mActivity.get();
     }
 
-    public Component getParent() {
-        return parent.get();
+    public Component getRoot() {
+        return root.get();
     }
 
-    public void setParent(Component parent) {
-        this.parent = new WeakReference<>(parent);
+    public void setRoot(Component parent) {
+        this.root = new WeakReference<>(parent);
     }
 
     @Override
@@ -113,10 +101,6 @@ public class Component implements IComponent {
 
     }
 
-    @Override
-    public void onNewIntent(Intent intent) {
-
-    }
 
     @Override
     public void onRestart() {
@@ -133,20 +117,6 @@ public class Component implements IComponent {
         return false;
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-
-    }
 
     @Override
     public void onStart() {

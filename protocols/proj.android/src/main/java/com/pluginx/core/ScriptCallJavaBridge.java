@@ -16,6 +16,22 @@ public class ScriptCallJavaBridge {
         NotificationCenter.getInstance().postNotification(Constants.SHOW_INTERSTITIAL_AD, sdkName);
     }
 
+    public static void showBannerAd(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.BANNER_AD_VISIBLE, sdkName, false);
+    }
+
+    public static void hideBannerAd(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.BANNER_AD_VISIBLE, sdkName, false);
+    }
+
+    public static void showFloatAd(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.FLOAT_AD_VISIBLE, sdkName, false);
+    }
+
+    public static void hideFloatAd(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.FLOAT_AD_VISIBLE, sdkName, false);
+    }
+
     public static void bannerAdVisible(String sdkName, boolean visible) {
         NotificationCenter.getInstance().postNotification(Constants.BANNER_AD_VISIBLE, sdkName, visible);
     }
@@ -33,22 +49,19 @@ public class ScriptCallJavaBridge {
     }
 
     public static void paymentWithProductId(String sdkName, String productId) {
-        ScriptCallJavaBridge.paymentWithProductId(sdkName, productId, true);
+        ScriptCallJavaBridge.paymentWithProductId(sdkName, productId);
     }
 
-    public static void logIn(String sdkName) {
-        NotificationCenter.getInstance().postNotification(Constants.LOG_IN, sdkName);
+    public static void signIn(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.SIGN_IN, sdkName);
     }
 
-    public static void logOut(String sdkName) {
-        NotificationCenter.getInstance().postNotification(Constants.LOG_OUT, sdkName);
+    public static void signOut(String sdkName) {
+        NotificationCenter.getInstance().postNotification(Constants.SIGN_OUT, sdkName);
     }
 
     public static void share(String sdkName, String content) {
         NotificationCenter.getInstance().postNotification(Constants.SHARE, sdkName, content);
     }
 
-    public static void paymentWithProductId(String sdkName, String productId, boolean bAutoConsume) {
-        NotificationCenter.getInstance().postNotification(Constants.PAYMENT_PRODUCT, sdkName, productId, bAutoConsume);
-    }
 }

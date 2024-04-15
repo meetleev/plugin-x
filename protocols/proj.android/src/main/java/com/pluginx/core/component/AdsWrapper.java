@@ -2,11 +2,9 @@ package com.pluginx.core.component;
 
 import android.util.Log;
 
-import com.pluginx.core.BuildConfig;
 import com.pluginx.core.Constants;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
-
 
 public class AdsWrapper extends PluginWrapper {
     public enum AdState {
@@ -17,15 +15,12 @@ public class AdsWrapper extends PluginWrapper {
         RewardedVideo, RewardedInterstitial, Interstitial, Banner,
     }
 
-    protected final String ON_SHOW_AD_RESULT = "onShowAdResult";
     protected final String UNIT_AD_EMPTY = "the unit ad was emptied";
-    protected final String SPLASH_PLAY_COMPLETE = "SPLASH_PLAY_COMPLETE";
 
     protected AdState rewardAdState = AdState.None;
     protected AdState interstitialAdState = AdState.None;
     protected AdState rewardInterstitialAdState = AdState.None;
     protected AdState bannerAdState = AdState.None;
-
     protected ObserverListener mObserverListener = (String eventName, Object... objects) -> {
         Log.d(Constants.TAG, "ads onMessage " + eventName);
         String sdkName = (String) objects[0];
@@ -75,47 +70,64 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     public void showRewardedVideoAd() {
+        Log.d(Constants.TAG, "showRewardedVideoAd");
     }
 
     protected void loadBannerAd(boolean autoShow) {
     }
 
     public void showBannerAd() {
+        Log.d(Constants.TAG, "showBannerAd");
     }
 
     public void hideBannerAd() {
+        Log.d(Constants.TAG, "hideBannerAd");
     }
 
     protected void preloadRewardedInterstitialAd() {
     }
 
     public void showRewardedInterstitialAd() {
-        onShowAdFailed(AdType.RewardedInterstitial, new PluginError(AdState.Error.ordinal(), UNIT_AD_EMPTY));
+        Log.d(Constants.TAG, "showRewardedInterstitialAd");
     }
 
     protected void preloadInterstitialAd() {
     }
 
     public void showInterstitialAd() {
+        Log.d(Constants.TAG, "showInterstitialAd");
     }
 
     public void showFloatAd() {
+        Log.d(Constants.TAG, "showFloatAd");
     }
 
     public void hideFloatAd() {
+        Log.d(Constants.TAG, "hideFloatAd");
     }
 
     protected void onShowAdSuccess(AdType adType) {
-        getParent().nativeCallScript(ON_SHOW_AD_RESULT, adType, PluginStatusCodes.Succeed);
-        if (BuildConfig.USED_NATIVE)
-            onShowAdResult(adType.ordinal(), PluginStatusCodes.Succeed.ordinal(), null);
+        PluginAdResult result = new PluginAdResult(adType);
+        onShowAdResult(PluginStatus.Success.ordinal(), result.toString());
     }
 
     protected void onShowAdFailed(AdType adType, PluginError pluginError) {
-        getParent().nativeCallScript(ON_SHOW_AD_RESULT, adType, PluginStatusCodes.Failed, pluginError.toString());
-        if (BuildConfig.USED_NATIVE)
-            onShowAdResult(adType.ordinal(), PluginStatusCodes.Failed.ordinal(), pluginError.toString());
+        PluginAdResult result = new PluginAdResult(adType, pluginError);
+        onShowAdResult(PluginStatus.Failed.ordinal(), result.toString());
     }
 
-    public native void onShowAdResult(int adType, int code, String data);
+    private static class PluginAdResult extends PluginResult {
+        protected AdType adType;
+
+        public PluginAdResult(AdType adType) {
+            this.adType = adType;
+        }
+
+        public PluginAdResult(AdType adType, PluginError error) {
+            super(error);
+            this.adType = adType;
+        }
+    }
+
+    public native void onShowAdResult(int code, String data);
 }

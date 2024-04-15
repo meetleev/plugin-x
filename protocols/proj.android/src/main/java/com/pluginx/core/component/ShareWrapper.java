@@ -2,15 +2,12 @@ package com.pluginx.core.component;
 
 import android.util.Log;
 
-import com.pluginx.core.BuildConfig;
 import com.google.gson.Gson;
 import com.pluginx.core.Constants;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
 
 public class ShareWrapper extends PluginWrapper {
-    private final static String ON_SHARE_RESULT = "onShareResult";
-
     public enum ShareContentType {
         Link, Image, Video
     }
@@ -44,25 +41,27 @@ public class ShareWrapper extends PluginWrapper {
     }
 
     public void share(String value) {
-
+        Log.d(Constants.TAG, "share message " + value);
     }
 
     protected void onShareSucceed(String postId) {
-        getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Succeed.ordinal(), postId);
-        if (BuildConfig.USED_NATIVE)
-            onShareResult(PluginStatusCodes.Succeed.ordinal(), postId);
+        onShareResult(PluginStatus.Success.ordinal(), new PluginShareResult(postId).toString());
     }
 
     protected void onShareFailed(PluginError pluginError) {
-        getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Failed, pluginError);
-        if (BuildConfig.USED_NATIVE)
-            onShareResult(PluginStatusCodes.Failed.ordinal(), pluginError.toString());
+        onShareResult(PluginStatus.Failed.ordinal(), new PluginResult(pluginError).toString());
     }
 
     protected void onShareCanceled() {
-        getParent().nativeCallScript(ON_SHARE_RESULT, PluginStatusCodes.Canceled);
-        if (BuildConfig.USED_NATIVE)
-            onShareResult(PluginStatusCodes.Canceled.ordinal(), null);
+        onShareResult(PluginStatus.Canceled.ordinal(), null);
+    }
+
+    private static class PluginShareResult extends PluginResult {
+        protected String postId;
+
+        public PluginShareResult(String postId) {
+            this.postId = postId;
+        }
     }
 
     public native void onShareResult(int code, String data);
