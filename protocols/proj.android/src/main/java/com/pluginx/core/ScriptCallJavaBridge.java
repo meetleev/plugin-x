@@ -17,7 +17,7 @@ public class ScriptCallJavaBridge {
     }
 
     public static void showBannerAd(String sdkName) {
-        NotificationCenter.getInstance().postNotification(Constants.BANNER_AD_VISIBLE, sdkName, false);
+        NotificationCenter.getInstance().postNotification(Constants.BANNER_AD_VISIBLE, sdkName, true);
     }
 
     public static void hideBannerAd(String sdkName) {
@@ -25,7 +25,7 @@ public class ScriptCallJavaBridge {
     }
 
     public static void showFloatAd(String sdkName) {
-        NotificationCenter.getInstance().postNotification(Constants.FLOAT_AD_VISIBLE, sdkName, false);
+        NotificationCenter.getInstance().postNotification(Constants.FLOAT_AD_VISIBLE, sdkName, true);
     }
 
     public static void hideFloatAd(String sdkName) {

@@ -6,7 +6,7 @@ import java.util.HashMap;
 // @author Lee 消息中心
 // ----------------------------------------NotificationObserver-----------------------------
 class Observer {
-    private Object mTarget;
+    private final Object mTarget;
     private HashMap<String, ObserverListener> mObserverListenerMap;
     private static final String EVENT_NAME_PREFIX = "$";
 

@@ -357,7 +357,7 @@ static bool js_plugin_x_PluginHelper_addPaymentResultListener_static(se::State &
 
     pluginx::PlatformCallBack *arg1;
     pluginx::PlatformCallBack temp1;
-    ok &= sevalue_to_native(args[2], &temp1, s.thisObject());
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     arg1 = &temp1;
 

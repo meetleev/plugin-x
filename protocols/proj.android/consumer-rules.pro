@@ -20,11 +20,10 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Proguard GameBase for release
--keep public class com.pluginx.core.ScriptCallJavaBridge {
-    public <methods>;
-}
+# Proguard pluginx for release
+
 -dontwarn com.pluginx.**
+
 # natvie 方法不混淆
 -keepclasseswithmembernames class * {
     native <methods>;
@@ -34,24 +33,48 @@
     public<methods>;
 }
 
+-keep public class com.pluginx.core.ScriptCallJavaBridge {
+    public <methods>;
+}
+
+-keepnames public class com.pluginx.core.component.Component
+-keepnames public class com.pluginx.core.component.PluginWrapper
+
+-keep public class com.pluginx.core.component.PluginError {
+    <fields>;
+}
+
+-keep public class com.pluginx.core.component.PluginResult {
+    <fields>;
+}
+
+# user
 -keep public class com.pluginx.core.component.UserWrapper {
     public<methods>;
 }
 
--keep class com.pluginx.core.component.UserWrapper$* {
+-keep class com.pluginx.core.component.UserWrapper$PluginUserInfo {
     <fields>;
 }
 
--keepnames public class com.pluginx.core.component.Component
--keep public class com.pluginx.core.component.PluginError {
-    <fields>;
-}
--keepnames public class com.pluginx.core.component.PluginWrapper
-
+# share
 -keep public class com.pluginx.core.component.ShareWrapper {
     public<methods>;
 }
 
--keep class com.pluginx.core.component.ShareWrapper$.* {
+-keep class com.pluginx.core.component.ShareWrapper$ShareInfo {
+    <fields>;
+}
+
+-keep class com.pluginx.core.component.ShareWrapper$PluginShareResult {
+    <fields>;
+}
+
+# ads
+-keep public class com.pluginx.core.component.AdsWrapper {
+    public<methods>;
+}
+
+-keep class com.pluginx.core.component.AdsWrapper$PluginAdResult {
     <fields>;
 }

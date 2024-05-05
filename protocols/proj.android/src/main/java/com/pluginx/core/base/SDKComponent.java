@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import com.pluginx.core.component.Component;
 import com.pluginx.core.component.Permissions;
 import com.pluginx.core.component.PluginWrapper;
-import com.pluginx.core.utils.Function;
 import com.pluginx.core.utils.NotificationCenter;
 
 import java.lang.ref.WeakReference;
@@ -32,19 +31,24 @@ public class SDKComponent extends Component {
         return this.mActivity.get();
     }
 
+    private FunctionHelper functionHelper;
+
+    public FunctionHelper getFunctionHelper() {
+        return functionHelper;
+    }
+
     public SDKComponent() {
         mMainThreadHandler = new Handler();
         mComponents = new ArrayList<>();
     }
 
     public void init(Activity activity) {
-        mActivity = new WeakReference<>(activity);
-        register();
-        onLoad();
+        init(activity, null);
     }
 
     public void init(Activity activity, IGameThreadCallBack gameThreadCallBack) {
         mActivity = new WeakReference<>(activity);
+        functionHelper = new FunctionHelper(activity);
         mGameThreadCallBack = gameThreadCallBack;
         register();
         onLoad();
@@ -167,22 +171,6 @@ public class SDKComponent extends Component {
         final String msgF = msg;
         final int durationF = duration;
         runOnMainThread(() -> Toast.makeText(getActivity().getApplicationContext(), msgF, durationF).show());
-    }
-
-    public String getStringMetaFromApp(String key) {
-        return getStringMetaFromApp(key, null);
-    }
-
-    public String getStringMetaFromApp(String key, String defaultValue) {
-        return Function.getStringMetaFromApp(getActivity(), key, defaultValue);
-    }
-
-    public boolean getBooleanMetaFromApp(String key) {
-        return getBooleanMetaFromApp(key, false);
-    }
-
-    public boolean getBooleanMetaFromApp(String key, boolean defaultValue) {
-        return Function.getBooleanMetaFromApp(getActivity(), key, defaultValue);
     }
 
     public native void register();

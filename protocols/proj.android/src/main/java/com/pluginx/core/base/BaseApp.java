@@ -8,13 +8,16 @@ import androidx.multidex.MultiDex;
 
 import com.pluginx.core.Constants;
 import com.pluginx.core.component.AppComponent;
-import com.pluginx.core.utils.Function;
 
 import java.util.ArrayList;
 
 public class BaseApp extends Application {
     protected static ArrayList<AppComponent> mComponents;
+    private FunctionHelper functionHelper;
 
+    public FunctionHelper getFunctionHelper() {
+        return functionHelper;
+    }
     public BaseApp() {
         super();
         mComponents = new ArrayList<>();
@@ -23,6 +26,7 @@ public class BaseApp extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
+        functionHelper = new FunctionHelper(base);
         MultiDex.install(this);
     }
 
@@ -90,6 +94,6 @@ public class BaseApp extends Application {
     }
 
     public String getStringMetaFromApp(String key, String defaultValue) {
-        return Function.getStringMetaFromApp(this, key, defaultValue);
+        return functionHelper.getStringMetaFromApp( key, defaultValue);
     }
 }

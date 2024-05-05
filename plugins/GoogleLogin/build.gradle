@@ -37,6 +37,6 @@ android {
 
 dependencies {
     // Required for add Google admob ad
-    implementation "com.google.android.gms:play-services-games-v2:17.0.0"
-    api project(path: ':libGameBase')
+    implementation "com.google.android.gms:play-services-games-v2:20.0.0"
+    api project(path: ':libPluginX')
 }

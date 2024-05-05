@@ -1,18 +1,22 @@
 package com.pluginx.google.login;
 
 
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 
-import com.pluginx.core.component.PluginError;
-import com.pluginx.core.component.UserWrapper;
+import com.google.android.gms.common.images.ImageManager;
 import com.google.android.gms.games.GamesSignInClient;
 import com.google.android.gms.games.PlayGames;
 import com.google.android.gms.games.PlayGamesSdk;
 import com.google.android.gms.games.Player;
+import com.pluginx.core.base.FunctionHelper;
+import com.pluginx.core.component.PluginError;
+import com.pluginx.core.component.UserWrapper;
 
 
 public class GoogleLogin extends UserWrapper {
-//    private static final String META_GP_AUTHENTICATION_SERVER_ID = "GP_AUTHENTICATION_SERVER_ID";
+    //    private static final String META_GP_AUTHENTICATION_SERVER_ID = "GP_AUTHENTICATION_SERVER_ID";
     private static final String TAG = "GoogleLogin";
     private GamesSignInClient gamesSignInClient;
 
@@ -21,7 +25,8 @@ public class GoogleLogin extends UserWrapper {
         super.initSDK();
         PlayGamesSdk.initialize(getActivity());
         gamesSignInClient = PlayGames.getGamesSignInClient(getActivity());
-        /*getParent().runOnMainThread(() -> gamesSignInClient.isAuthenticated().addOnCompleteListener(task -> {
+        /*runOnMainThread(() -> gamesSignInClient.isAuthenticated().addOnCompleteListener(task -> {
+           AuthenticationResult r = task.getResult();
             boolean isAuthenticated = (task.isSuccessful() && task.getResult().isAuthenticated());
             if (isAuthenticated) {
                 // Continue with Play Games Services
@@ -31,9 +36,9 @@ public class GoogleLogin extends UserWrapper {
     }
 
     @Override
-    public void logIn() {
-        super.logIn();
-        Log.d(TAG, "logIn");
+    public void signIn() {
+        super.signIn();
+        Log.d(TAG, "signIn");
         runOnMainThread(() -> gamesSignInClient.isAuthenticated().addOnCompleteListener(task -> {
             boolean isAuthenticated = (task.isSuccessful() && task.getResult().isAuthenticated());
 
@@ -59,7 +64,18 @@ public class GoogleLogin extends UserWrapper {
             // Get PlayerID with mTask.getResult().getPlayerId()
             Player p = mTask.getResult();
             Log.d(TAG, "getPlayerId--" + p);
-            onLoginSucceed(new UserInfo(p.getPlayerId(), p.getDisplayName(), p.getIconImageUrl()));
+            Uri iconImageUrl = p.getIconImageUri();
+            if (null != iconImageUrl) {
+                ImageManager manager = ImageManager.create(getActivity());
+                manager.loadImage((uri, drawable, b) -> {
+                    FunctionHelper functionHelper = getParent().getFunctionHelper();
+                    Bitmap bitmap = functionHelper.drawableToBitmap(drawable);
+                    String filePath = functionHelper.saveBitmapToFile(bitmap, p.getPlayerId() + ".jpg");
+                    onLoginSucceed(new PluginUserInfo(p.getPlayerId(), p.getDisplayName(), "file://" + filePath));
+                }, iconImageUrl);
+            } else {
+                onLoginSucceed(new PluginUserInfo(p.getPlayerId(), p.getDisplayName(), null));
+            }
         }).addOnFailureListener(e -> {
             Log.d(TAG, "fetchPlayerInfo: " + e.getLocalizedMessage() + "---" + e.getMessage());
             onLoginFailed(new PluginError(e.getMessage()));

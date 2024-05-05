@@ -3,6 +3,7 @@ package com.pluginx.core.component;
 import android.util.Log;
 
 import com.pluginx.core.Constants;
+import com.pluginx.core.base.FunctionHelper;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
 
@@ -72,16 +73,17 @@ public class IAPWrapper extends PluginWrapper {
     }
 
     public void readPayConfig() {
-        String sAutoConsumeProducts = getParent().getStringMetaFromApp(AUTO_CONSUME_PRODUCTS);
+        FunctionHelper functionHelper = getParent().getFunctionHelper();
+        String sAutoConsumeProducts = functionHelper.getStringMetaFromApp(AUTO_CONSUME_PRODUCTS);
         if (null != sAutoConsumeProducts && !sAutoConsumeProducts.isEmpty()) {
             autoConsumeProducts.addAll(Arrays.asList(sAutoConsumeProducts.split(",")));
         }
-        String sInAppProducts = getParent().getStringMetaFromApp(IN_APP_PRODUCTS);
+        String sInAppProducts = functionHelper.getStringMetaFromApp(IN_APP_PRODUCTS);
         if (null != sInAppProducts && !sInAppProducts.isEmpty()) {
             inAppProducts = Arrays.asList(sInAppProducts.split(","));
             addProductData(inAppProducts);
         }
-        String sSubscriptionProducts = getParent().getStringMetaFromApp(SUBSCRIPTION_PRODUCTS);
+        String sSubscriptionProducts = functionHelper.getStringMetaFromApp(SUBSCRIPTION_PRODUCTS);
         if (null != sSubscriptionProducts && !sSubscriptionProducts.isEmpty()) {
             subscriptionProducts = Arrays.asList(sSubscriptionProducts.split(","));
             addProductData(subscriptionProducts);

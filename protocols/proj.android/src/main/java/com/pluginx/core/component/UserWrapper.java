@@ -8,9 +8,9 @@ import com.pluginx.core.utils.ObserverListener;
 
 public class UserWrapper extends PluginWrapper {
 
-    public static class PluginUserInfo extends PluginResult {
+    protected static class PluginUserInfo extends PluginResult {
         String id;
-        String gamerTag;
+        String gamerTitle;
         String iconImageUrl;
         String email;
 
@@ -18,8 +18,8 @@ public class UserWrapper extends PluginWrapper {
             this.id = id;
         }
 
-        public void setGamerTag(String gamerTag) {
-            this.gamerTag = gamerTag;
+        public void setGamerTitle(String gamerTitle) {
+            this.gamerTitle = gamerTitle;
         }
 
         public void setIconImageUrl(String iconImageUrl) {
@@ -31,9 +31,9 @@ public class UserWrapper extends PluginWrapper {
         }
 
 
-        public PluginUserInfo(String id, String gamerTag, String iconImageUrl) {
+        public PluginUserInfo(String id, String gamerTitle, String iconImageUrl) {
             this.id = id;
-            this.gamerTag = gamerTag;
+            this.gamerTitle = gamerTitle;
             this.iconImageUrl = iconImageUrl;
         }
 

@@ -441,7 +441,7 @@ public class GoogleMobAd extends AdsWrapper {
         } else if (AdType.RewardedInterstitial == adType) {
             metaKey = META_GP_REWARD_INTERSTITIAL_AD_ID;
         }
-        String adId = getParent().getStringMetaFromApp(metaKey);
+        String adId = getParent().getFunctionHelper().getStringMetaFromApp(metaKey);
         if (null == adId || adId.isEmpty()) {
             Log.d(Constants.TAG, "adId is null <adType=> " + adType);
             return null;

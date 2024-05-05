@@ -12,10 +12,9 @@ public class ShareWrapper extends PluginWrapper {
         Link, Image, Video
     }
 
-    public static class ShareInfo {
+    protected static class ShareInfo {
         public int contentType;
         public String url;
-        public String filePath;
         public String tag;
 
         public static ShareInfo formJson(String json) {

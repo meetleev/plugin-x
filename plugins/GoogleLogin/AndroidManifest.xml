@@ -5,6 +5,9 @@
         <meta-data
             android:name="META_GP_AUTHENTICATION_SERVER_ID"
             android:value="GP" />
+        <meta-data
+            android:name="com.google.android.gms.games.APP_ID"
+            android:value="google_app_id" />
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

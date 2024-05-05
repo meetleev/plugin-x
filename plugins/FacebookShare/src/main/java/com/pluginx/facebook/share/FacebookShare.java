@@ -20,6 +20,7 @@ import com.facebook.share.model.SharePhotoContent;
 import com.facebook.share.model.ShareVideo;
 import com.facebook.share.model.ShareVideoContent;
 import com.facebook.share.widget.ShareDialog;
+import com.pluginx.core.base.FunctionHelper;
 import com.pluginx.core.base.TaskExecutor;
 import com.pluginx.core.component.PluginError;
 import com.pluginx.core.component.ShareWrapper;
@@ -37,7 +38,7 @@ public class FacebookShare extends ShareWrapper {
         super.initSDK();
         callbackManager = CallbackManager.Factory.create();
         shareDialog = new ShareDialog(getActivity());
-        shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+        shareDialog.registerCallback(callbackManager, new FacebookCallback<>() {
             @Override
             public void onSuccess(Sharer.Result result) {
                 Log.d(TAG, "onSuccess");
@@ -63,58 +64,62 @@ public class FacebookShare extends ShareWrapper {
         super.share(value);
         Log.d(TAG, "share: " + value);
         getParent().runOnMainThread(() -> {
+            FunctionHelper functionHelper = getParent().getFunctionHelper();
             ShareInfo shareInfo = ShareInfo.formJson(value);
             int contentType = shareInfo.contentType;
             String url = shareInfo.url;
-            ShareContent.Builder contentBuilder = null;
             if (ShareContentType.Link.ordinal() == contentType) {
                 if (null == url || url.isEmpty()) {
                     String errMsg = "url not given!";
                     onShareFailed(new PluginError(errMsg));
                     return;
                 }
-                contentBuilder = new ShareLinkContent.Builder().setContentUrl(Uri.parse(url));
+                if (!functionHelper.isHttpUrl(url)) {
+                    String errMsg = "url invalid!";
+                    onShareFailed(new PluginError(errMsg));
+                    return;
+                }
+                ShareContent.Builder<ShareLinkContent, ShareLinkContent.Builder> contentBuilder = new ShareLinkContent.Builder().setContentUrl(Uri.parse(url));
+                shareByDialog(contentBuilder, shareInfo);
             } else if (ShareContentType.Image.ordinal() == contentType) {
-                SharePhoto.Builder photoBuilder = null;
-                boolean canShare = false;
-                if (null != url && !url.isEmpty()) {
-                    new TaskExecutor().executeAsync(new DownloadImgTask(url), result -> {
-                        shareImage(result, shareInfo);
-                    });
-                    return;
-                } else if (null != shareInfo.filePath && !shareInfo.filePath.isEmpty()) {
-                    canShare = true;
-                    photoBuilder = new SharePhoto.Builder();
-                    Bitmap bitmap = BitmapFactory.decodeFile(shareInfo.filePath);
-                    photoBuilder.setBitmap(bitmap);
-                }
-                if (!canShare) {
-                    String errMsg = "url and filePath not given!";
+                boolean flag = true;
+                while (flag) {
+                    if (null == url || url.isEmpty()) {
+                        String errMsg = "url not given!";
+                        onShareFailed(new PluginError(errMsg));
+                        break;
+                    }
+                    if (functionHelper.isAssetsRes(url)) {
+                        Bitmap bitmap = functionHelper.loadAssetsImage(url);
+                        shareImage(bitmap, shareInfo);
+                        break;
+                    }
+                    if (functionHelper.isFileInAppPrivateStorage(url)) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(url);
+                        shareImage(bitmap, shareInfo);
+                        break;
+                    }
+                    if (functionHelper.isHttpUrl(url)) {
+                        new TaskExecutor().executeAsync(new DownloadImgTask(url), result -> {
+                            shareImage(result, shareInfo);
+                        });
+                        break;
+                    }
+                    String errMsg = "url invalid!";
                     onShareFailed(new PluginError(errMsg));
-                    return;
+                    flag = false;
                 }
-                contentBuilder = new SharePhotoContent.Builder().addPhoto(photoBuilder.build());
-
             } else if (ShareContentType.Video.ordinal() == contentType) {
-                contentBuilder = new ShareVideoContent.Builder();
-                boolean canShare = false;
-                if (null != url && !url.isEmpty()) {
-                    canShare = true;
-                    contentBuilder.setContentUrl(Uri.parse(url));
-                }
-                ShareVideo.Builder builderVideo;
-                if (null != shareInfo.filePath && !shareInfo.filePath.isEmpty()) {
-                    canShare = true;
-                    builderVideo = new ShareVideo.Builder();
-                    builderVideo.setLocalUrl(Uri.parse(shareInfo.filePath));
-                }
-                if (!canShare) {
-                    String errMsg = "url and filePath not given!";
+                if (null == url || url.isEmpty()) {
+                    String errMsg = "url not given!";
                     onShareFailed(new PluginError(errMsg));
                     return;
                 }
+                ShareVideo.Builder builderVideo = new ShareVideo.Builder();
+                builderVideo.setLocalUrl(Uri.parse(url));
+                ShareVideoContent.Builder content = new ShareVideoContent.Builder().setVideo(builderVideo.build());
+                shareByDialog(content, shareInfo);
             }
-            shareByDialog(contentBuilder, shareInfo);
         });
     }
 
@@ -129,12 +134,12 @@ public class FacebookShare extends ShareWrapper {
         shareByDialog(contentBuilder, shareInfo);
     }
 
-    private void shareByDialog(ShareContent.Builder contentBuilder, ShareInfo shareInfo) {
+    private void shareByDialog(ShareContent.Builder<?, ?> contentBuilder, ShareInfo shareInfo) {
         if (null != contentBuilder) {
             if (null != shareInfo.tag && !shareInfo.tag.isEmpty()) {
                 contentBuilder.setShareHashtag(new ShareHashtag.Builder().setHashtag(shareInfo.tag).build());
             }
-            shareDialog.show((ShareContent<?, ?>) contentBuilder.build());
+            shareDialog.show(contentBuilder.build());
         } else {
             String errMsg = "share failed";
             Log.d(TAG, errMsg);
