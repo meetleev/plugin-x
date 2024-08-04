@@ -317,6 +317,10 @@ public class GoogleMobAd extends AdsWrapper {
     protected void loadBannerAd(boolean autoShow) {
         super.loadBannerAd(autoShow);
         runOnMainThread(() -> {
+            if (null != mBannerAdView) {
+                mBannerAdView.destroy();
+                mBannerAdView = null;
+            }
             if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
                 Log.d(TAG, "Banner loading or loaded");
                 return;
@@ -411,10 +415,6 @@ public class GoogleMobAd extends AdsWrapper {
                 loadBannerAd(true);
             }
         } else {
-            if (null != mBannerAdView) {
-                mBannerAdView.destroy();
-                mBannerAdView = null;
-            }
             loadBannerAd(true);
         }
     }

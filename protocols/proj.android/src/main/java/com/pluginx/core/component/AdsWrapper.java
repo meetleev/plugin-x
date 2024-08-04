@@ -2,7 +2,11 @@ package com.pluginx.core.component;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.GsonBuilder;
 import com.pluginx.core.Constants;
+import com.pluginx.core.json.EnumTypeAdapter;
 import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
 
@@ -126,6 +130,14 @@ public class AdsWrapper extends PluginWrapper {
         public PluginAdResult(AdType adType, PluginError error) {
             super(error);
             this.adType = adType;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(AdType.class, new EnumTypeAdapter<>(AdType.class));
+            return gsonBuilder.create().toJson(this);
         }
     }
 

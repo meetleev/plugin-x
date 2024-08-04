@@ -3,7 +3,6 @@ package com.pluginx.core;
 public class Constants {
     public static final int VERSION_CODE = 200;
     public static final String TAG = "PLUGIN_X_NATIVE_CORE";
-    public static final String SHOW_TOAST = "SHOW_TOAST";
     public static final String SHOW_REWARD_VIDEO_AD = "SHOW_REWARD_VIDEO_AD";
     public static final String SHOW_INTERSTITIAL_AD = "SHOW_INTERSTITIAL_AD";
     public static final String SHOW_REWARD_INTERSTITIAL_AD = "SHOW_REWARD_INTERSTITIAL_AD";

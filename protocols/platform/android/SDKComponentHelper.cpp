@@ -3,7 +3,6 @@
 //
 
 #include "SDKComponentHelper.h"
-#include "application/ApplicationManager.h"
 #include "SDKEventManager.h"
 
 //#define USE_REFLECTION  1
@@ -22,38 +21,29 @@ NS_PLUGIN_X_BEGIN
     Java_com_pluginx_core_component_AdsWrapper_onShowAdResult(JNIEnv *env, jobject thiz, jint code,
                                                               jstring jMsg) {
         std::string msg = cc::JniHelper::jstring2string(jMsg);
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([code, msg]() {
-            SDKEventManager::Instance().emit(SDKEventType::onShowAd, code, msg);
-        });
+        SDKEventManager::Instance().emit(SDKEventType::onShowAd, code, msg);
     }
 
     JNIEXPORT void JNICALL
     Java_com_pluginx_core_component_ShareWrapper_onShareResult(JNIEnv *env, jobject thiz, jint code,
                                                                jstring jMsg) {
         std::string msg = cc::JniHelper::jstring2string(jMsg);
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([code, msg]() {
-            SDKEventManager::Instance().emit(SDKEventType::onShare, code, msg);
-        });
+        SDKEventManager::Instance().emit(SDKEventType::onShare, code, msg);
     }
 
     JNIEXPORT void JNICALL
     Java_com_pluginx_core_component_UserWrapper_onLoginResult(JNIEnv *env, jobject thiz, jint code,
                                                               jstring jMsg) {
         std::string msg = cc::JniHelper::jstring2string(jMsg);
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([code, msg]() {
-            SDKEventManager::Instance().emit(SDKEventType::onLogin, code, msg);
-        });
+        SDKEventManager::Instance().emit(SDKEventType::onLogin, code, msg);
     }
 
     JNIEXPORT void JNICALL
     Java_com_pluginx_core_component_IAPWrapper_onPaymentResult(JNIEnv *env, jobject thiz, jint code,
                                                                jstring jMsg) {
         std::string msg = cc::JniHelper::jstring2string(jMsg);
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([code, msg]() {
-            SDKEventManager::Instance().emit(SDKEventType::onPayment, code, msg);
-        });
+        SDKEventManager::Instance().emit(SDKEventType::onPayment, code, msg);
     }
-
     }
 
     jobject SDKComponentHelper::addComponent(const char *componentName) {
@@ -123,22 +113,20 @@ NS_PLUGIN_X_BEGIN
 
     bool SDKComponentHelper::showToast(const std::string &msg, int duration) {
         cc::JniMethodInfo t;
-        if (0 >= duration) {
+        if (0 < duration) {
             if (JniUtil::getGlobalMethodInfo(t, g_plugin, "showToast",
                                              "(Ljava/lang/String;I)V")) {
                 jstring str = t.env->NewStringUTF(msg.c_str());
-                jobject o = t.env->CallObjectMethod(g_plugin, t.methodID, str, duration);
+                 t.env->CallVoidMethod(g_plugin, t.methodID, str, duration);
                 t.env->DeleteLocalRef(str);
-                t.env->DeleteLocalRef(o);
                 return true;
             }
         }
         if (JniUtil::getGlobalMethodInfo(t, g_plugin, "showToast",
                                          "(Ljava/lang/String;)V")) {
             jstring str = t.env->NewStringUTF(msg.c_str());
-            jobject o = t.env->CallObjectMethod(g_plugin, t.methodID, str);
+            t.env->CallVoidMethod(g_plugin, t.methodID, str);
             t.env->DeleteLocalRef(str);
-            t.env->DeleteLocalRef(o);
         }
         return false;
     }
