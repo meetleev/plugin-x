@@ -9,12 +9,16 @@
 #include "PluginMacros.h"
 #include <jni.h>
 #include "platform/java/jni/JniHelper.h"
-#include <android/log.h>
-
-#define  LOG_TAG    "Plugin Debug"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 NS_PLUGIN_X_BEGIN
+
+using JValue = std::variant<
+        std::string,
+        int,
+        bool,
+        float,
+        double
+>;
 
 class JniUtil {
 public:
@@ -28,8 +32,17 @@ public:
                                              const char *className,
                                              const char *methodName,
                                              const char *paramCode);
+
+    template<typename... Args>
+    static bool callJavaStatic(const std::string& className, const std::string& method, Args&&... args)
+    {
+        std::vector<JValue> values;
+        (values.emplace_back(std::forward<Args>(args)), ...);
+        return callJavaStaticWithList(className, method, values);
+    }
 private:
     JniUtil(){}
+    static bool callJavaStaticWithList(const std::string& className, const std::string& method, const std::vector<JValue>& args);
 };
 
 NS_PLUGIN_X_END

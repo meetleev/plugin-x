@@ -9,13 +9,13 @@ import com.pluginx.core.utils.ObserverListener;
 public class UserWrapper extends PluginWrapper {
 
     protected static class PluginUserInfo extends PluginResult {
-        String id;
+        String uid;
         String gamerTitle;
         String iconImageUrl;
         String email;
 
         public void setId(String id) {
-            this.id = id;
+            this.uid = id;
         }
 
         public void setGamerTitle(String gamerTitle) {
@@ -32,14 +32,14 @@ public class UserWrapper extends PluginWrapper {
 
 
         public PluginUserInfo(String id, String gamerTitle, String iconImageUrl) {
-            this.id = id;
+            this.uid = id;
             this.gamerTitle = gamerTitle;
             this.iconImageUrl = iconImageUrl;
         }
 
     }
 
-    protected ObserverListener mObserverListener = (eventName, objects) -> {
+    private final ObserverListener mObserverListener = (eventName, objects) -> {
         Log.d(Constants.TAG, "onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());

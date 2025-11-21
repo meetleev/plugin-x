@@ -85,14 +85,14 @@ NS_PLUGIN_X_BEGIN
             }
         }
 
+
+        EventManager(const EventManager &) = delete; // 禁止拷贝构造
+        EventManager &operator=(const EventManager &) = delete; // 禁止赋值运算符
     private:
         std::map<EventId, std::vector<EventHandler>> consumptionHandlers;
         std::map<EventId, std::vector<EventHandler>> subscriptionHandlers;
 
         EventManager() {}
-
-        EventManager(const EventManager &) = delete; // 禁止拷贝构造
-        EventManager &operator=(const EventManager &) = delete; // 禁止赋值运算符
     };
 
 NS_PLUGIN_X_END

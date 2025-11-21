@@ -7,7 +7,7 @@ import com.pluginx.core.utils.NotificationCenter;
 import com.pluginx.core.utils.ObserverListener;
 
 public class AnalyticsWrapper extends PluginWrapper {
-    protected ObserverListener mObserverListener = new ObserverListener() {
+    private final ObserverListener mObserverListener = new ObserverListener() {
         @Override
         public void onMessage(String eventName, Object... objects) {
             Log.d(Constants.TAG, "onMessage " + eventName);

@@ -4,14 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.pluginx.core.Constants;
 import com.pluginx.core.component.Component;
 import com.pluginx.core.component.Permissions;
 import com.pluginx.core.component.PluginWrapper;
 import com.pluginx.core.utils.NotificationCenter;
+import com.pluginx.core.utils.ObserverListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -36,6 +39,23 @@ public class SDKComponent extends Component {
     public FunctionHelper getFunctionHelper() {
         return functionHelper;
     }
+
+    private final ObserverListener mObserverListener = (String eventName, Object... objects) -> {
+        Log.d(Constants.TAG, "SDKComponent onMessage " + eventName);
+        if (eventName.equals(Constants.SHOW_TOAST)) {
+            String msg = (String) objects[0];
+            int duration = 0;
+            if (1 < objects.length)
+                duration = (int) objects[1];
+            Log.d(Constants.TAG, "showToast msg " + msg + " duration: " + duration);
+
+            if (0 < duration) {
+                showToast(msg, duration);
+            } else {
+                showToast(msg);
+            }
+        }
+    };
 
     public SDKComponent() {
         mMainThreadHandler = new Handler();
@@ -152,6 +172,7 @@ public class SDKComponent extends Component {
 
     @Override
     public void onLoad() {
+        NotificationCenter.getInstance().registerObserver(Constants.SHOW_TOAST, this.mObserverListener, this);
         addComponent(Permissions.class);
 //        addComponent(NetworkStatus.class);
     }

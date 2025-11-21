@@ -10,6 +10,8 @@
 
 NS_PLUGIN_X_BEGIN
 
+static const char *SCRIPT_CALL_JAVA_BRIDGE_CLASS = "com/pluginx/core/ScriptCallJavaBridge";
+
 class SDKComponentHelper {
 public:
     static bool showToast(const std::string &msg, int duration);
@@ -33,9 +35,12 @@ public:
 protected:
     SDKComponentHelper() {}
     static jobject addComponent(const char * componentName);
-    static bool nativeCallJava(const std::string& componentName, const std::string& method);
-    static bool nativeCallJava(const std::string& componentName, const std::string& method, const std::string& arg1);
-    static bool nativeCallJava(const std::string& componentName, const std::string& method, const std::string& arg1, const std::string& arg2);
+
+    template<typename... Args>
+    static bool nativeCallJava(const std::string& method, Args&&... args)
+    {
+        return JniUtil::callJavaStatic(SCRIPT_CALL_JAVA_BRIDGE_CLASS, method, args...);
+    }
 };
 
 NS_PLUGIN_X_END

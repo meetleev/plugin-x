@@ -30,7 +30,7 @@ public class IAPWrapper extends PluginWrapper {
     private final static String AUTO_CONSUME_PRODUCTS = "autoConsumeProducts";
     private final static String SUBSCRIPTION_PRODUCTS = "subscriptionProducts";
 
-    protected ObserverListener mObserverListener = (eventName, objects) -> {
+    private final ObserverListener mObserverListener = (eventName, objects) -> {
         Log.d(Constants.TAG, "onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());

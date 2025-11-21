@@ -60,4 +60,11 @@ public class ScriptCallJavaBridge {
         NotificationCenter.getInstance().postNotification(Constants.SHARE, sdkName, content);
     }
 
+    public static void showToast(String msg) {
+        NotificationCenter.getInstance().postNotification(Constants.SHOW_TOAST, msg);
+    }
+
+    public static void showToast(String msg, int duration) {
+        NotificationCenter.getInstance().postNotification(Constants.SHOW_TOAST, msg, duration);
+    }
 }

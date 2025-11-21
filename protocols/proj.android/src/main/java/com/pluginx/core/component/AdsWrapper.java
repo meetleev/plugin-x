@@ -25,7 +25,7 @@ public class AdsWrapper extends PluginWrapper {
     protected AdState interstitialAdState = AdState.None;
     protected AdState rewardInterstitialAdState = AdState.None;
     protected AdState bannerAdState = AdState.None;
-    protected ObserverListener mObserverListener = (String eventName, Object... objects) -> {
+    private final ObserverListener mObserverListener = (String eventName, Object... objects) -> {
         Log.d(Constants.TAG, "ads onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "ads onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());
@@ -70,9 +70,6 @@ public class AdsWrapper extends PluginWrapper {
         NotificationCenter.getInstance().registerObserver(Constants.BANNER_AD_VISIBLE, this.mObserverListener, this);
     }
 
-    protected void preloadRewardedAd() {
-    }
-
     public void showRewardedVideoAd() {
         Log.d(Constants.TAG, "showRewardedVideoAd");
     }
@@ -88,15 +85,11 @@ public class AdsWrapper extends PluginWrapper {
         Log.d(Constants.TAG, "hideBannerAd");
     }
 
-    protected void preloadRewardedInterstitialAd() {
-    }
 
     public void showRewardedInterstitialAd() {
         Log.d(Constants.TAG, "showRewardedInterstitialAd");
     }
 
-    protected void preloadInterstitialAd() {
-    }
 
     public void showInterstitialAd() {
         Log.d(Constants.TAG, "showInterstitialAd");
@@ -121,7 +114,7 @@ public class AdsWrapper extends PluginWrapper {
     }
 
     private static class PluginAdResult extends PluginResult {
-        protected AdType adType;
+        public AdType adType;
 
         public PluginAdResult(AdType adType) {
             this.adType = adType;

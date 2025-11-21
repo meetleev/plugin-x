@@ -22,7 +22,7 @@ public class ShareWrapper extends PluginWrapper {
         }
     }
 
-    protected ObserverListener mObserverListener = (eventName, objects) -> {
+    private final ObserverListener mObserverListener = (eventName, objects) -> {
         Log.d(Constants.TAG, "onMessage " + eventName);
         String sdkName = (String) objects[0];
         Log.d(Constants.TAG, "onMessage sdkName " + sdkName + " clsName " + getClass().getSimpleName());

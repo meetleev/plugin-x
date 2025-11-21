@@ -21,6 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Proguard pluginx for release
+-keep class androidx.core.app.CoreComponentFactory { *; }
 
 -dontwarn com.pluginx.**
 
@@ -29,8 +30,14 @@
     native <methods>;
 }
 
+-keep interface com.pluginx.core.base.SDKComponent$IGameThreadCallBack{}
+
 -keep public class com.pluginx.core.base.SDKComponent {
     public<methods>;
+}
+
+-keep class com.pluginx.core.base.FunctionHelper {
+    public <methods>;
 }
 
 -keep public class com.pluginx.core.ScriptCallJavaBridge {
@@ -38,43 +45,42 @@
 }
 
 -keepnames public class com.pluginx.core.component.Component
--keepnames public class com.pluginx.core.component.PluginWrapper
 
 -keep public class com.pluginx.core.component.PluginError {
     <fields>;
+    public <methods>;
 }
 
 -keep public class com.pluginx.core.component.PluginResult {
     <fields>;
+    public <methods>;
 }
 
-# user
--keep public class com.pluginx.core.component.UserWrapper {
+-keep public class * extends com.pluginx.core.component.Component {
     public<methods>;
 }
 
--keep class com.pluginx.core.component.UserWrapper$PluginUserInfo {
+-keepclassmembernames class * extends com.pluginx.core.component.PluginResult {
     <fields>;
+    public <methods>;
+}
+
+-keep public class * extends com.pluginx.core.component.PluginWrapper {
+    protected <methods>;
+    public <methods>;
+    public <fields>;
+    protected <fields>;
 }
 
 # share
--keep public class com.pluginx.core.component.ShareWrapper {
-    public<methods>;
-}
-
 -keep class com.pluginx.core.component.ShareWrapper$ShareInfo {
     <fields>;
+    public <methods>;
 }
-
--keep class com.pluginx.core.component.ShareWrapper$PluginShareResult {
+-keep class com.pluginx.core.component.ShareWrapper$ShareContentType {
     <fields>;
 }
 
-# ads
--keep public class com.pluginx.core.component.AdsWrapper {
-    public<methods>;
-}
-
--keep class com.pluginx.core.component.AdsWrapper$PluginAdResult {
-    <fields>;
-}
+# ad
+-keep class com.pluginx.core.component.AdsWrapper$AdState {*;}
+-keep class com.pluginx.core.component.AdsWrapper$AdType {*;}

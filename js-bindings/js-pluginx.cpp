@@ -361,7 +361,7 @@ static bool js_plugin_x_PluginHelper_addPaymentResultListener_static(se::State &
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     arg1 = &temp1;
 
-    pluginx::PluginHelper::addPaymentResultListener( *arg1);
+    pluginx::PluginHelper::addPaymentResultListener(*arg1);
 
     return true;
 }
@@ -461,6 +461,132 @@ bool js_register_plugin_x_plugin_helper(se::Object *obj) {
     return true;
 }
 
+se::Class *__jsb_plugin_x_Console_class = nullptr;
+se::Object *__jsb_plugin_x_Console_proto = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_delete_plugin_x_PluginConsole)
+
+static std::string formatArgs(const std::vector<se::Value> &args) {
+
+    std::ostringstream oss;
+
+    for (size_t i = 0; i < args.size(); ++i) {
+        const se::Value &v = args[i];
+
+        if (v.isString()) {
+            oss << v.toString();
+        } else if (v.isBoolean()) {
+            oss << (v.toBoolean() ? "true" : "false");
+        } else if (v.isNumber() || v.isBigInt()) {
+            oss << v.toDouble();
+        } else if (v.isObject()) {
+            se::Object *obj = v.toObject();
+            oss << "[Object " << obj << "]";
+        } else if (v.isNull()) {
+            oss << "null";
+        } else if (v.isUndefined()) {
+            oss << "undefined";
+        } else {
+            oss << "[Unknown]";
+        }
+    }
+    return oss.str();
+}
+
+static bool js_plugin_x_PluginConsole_log_static(se::State &s) {
+    CC_UNUSED bool ok = true;
+    const auto &args = s.args();
+    pluginx::Console::log(formatArgs(args));
+    return true;
+}
+
+SE_BIND_FUNC(js_plugin_x_PluginConsole_log_static)
+
+
+static bool js_plugin_x_PluginConsole_debug_static(se::State &s) {
+    CC_UNUSED bool ok = true;
+    const auto &args = s.args();
+    pluginx::Console::debug(formatArgs(args));
+    return true;
+}
+
+SE_BIND_FUNC(js_plugin_x_PluginConsole_debug_static)
+
+
+
+static bool js_plugin_x_PluginConsole_info_static(se::State &s) {
+    CC_UNUSED bool ok = true;
+    const auto &args = s.args();
+    pluginx::Console::info(formatArgs(args));
+    return true;
+}
+
+SE_BIND_FUNC(js_plugin_x_PluginConsole_info_static)
+
+
+
+static bool js_plugin_x_PluginConsole_warn_static(se::State &s) {
+    CC_UNUSED bool ok = true;
+    const auto &args = s.args();
+    pluginx::Console::warn(formatArgs(args));
+    return true;
+}
+
+SE_BIND_FUNC(js_plugin_x_PluginConsole_warn_static)
+
+
+
+static bool js_plugin_x_PluginConsole_error_static(se::State &s) {
+    CC_UNUSED bool ok = true;
+    const auto &args = s.args();
+    pluginx::Console::error(formatArgs(args));
+    return true;
+}
+
+SE_BIND_FUNC(js_plugin_x_PluginConsole_error_static)
+
+static bool js_new_PluginConsole(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    pluginx::Console *result;
+    result = (pluginx::Console *) new pluginx::Console();
+
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+SE_BIND_CTOR(js_new_PluginConsole, __jsb_plugin_x_Console_class,
+             js_delete_plugin_x_PluginConsole)
+
+static bool js_delete_plugin_x_PluginConsole(se::State &s) {
+    return true;
+}
+
+SE_BIND_FINALIZE_FUNC(js_delete_plugin_x_PluginConsole)
+
+bool js_register_plugin_x_plugin_console(se::Object *obj) {
+    auto *cls = se::Class::create("Console", obj, nullptr, _SE(js_new_PluginConsole));
+
+    cls->defineStaticProperty("__isJSB", se::Value(true),
+                              se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM |
+                              se::PropertyAttribute::DONT_DELETE);
+    cls->defineStaticFunction("error", _SE(js_plugin_x_PluginConsole_error_static));
+    cls->defineStaticFunction("warn", _SE(js_plugin_x_PluginConsole_warn_static));
+    cls->defineStaticFunction("debug",
+                              _SE(js_plugin_x_PluginConsole_debug_static));
+    cls->defineStaticFunction("info",
+                              _SE(js_plugin_x_PluginConsole_info_static));
+    cls->defineStaticFunction("log", _SE(js_plugin_x_PluginConsole_log_static));
+    cls->defineFinalizeFunction(_SE(js_delete_plugin_x_PluginConsole));
+
+    cls->install();
+    JSBClassType::registerClass<pluginx::Console>(cls);
+    __jsb_plugin_x_Console_proto = cls->getProto();
+    __jsb_plugin_x_Console_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 bool register_all_plugin_x(se::Object *obj) // NOLINT(readability-identifier-naming)
 {
     // Get the ns
@@ -472,6 +598,7 @@ bool register_all_plugin_x(se::Object *obj) // NOLINT(readability-identifier-nam
     }
     se::Object *ns = nsVal.toObject();
     js_register_plugin_x_plugin_helper(ns);
+    js_register_plugin_x_plugin_console(ns);
 
     return true;
 }

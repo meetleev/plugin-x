@@ -4,18 +4,18 @@
 
 #include "SDKComponentHelper.h"
 #include "SDKEventManager.h"
-
 //#define USE_REFLECTION  1
 
 NS_PLUGIN_X_BEGIN
     jobject g_plugin = nullptr;
 
-    static const char *SCRIPT_CALL_JAVA_BRIDGE_CLASS = "com/pluginx/core/ScriptCallJavaBridge";
     extern "C" {
 
     JNIEXPORT void JNICALL
     Java_com_pluginx_core_base_SDKComponent_register(JNIEnv *env, jobject job) {
+#ifdef USE_REFLECTION
         g_plugin = env->NewGlobalRef(job);
+#endif
     }
     JNIEXPORT void JNICALL
     Java_com_pluginx_core_component_AdsWrapper_onShowAdResult(JNIEnv *env, jobject thiz, jint code,
@@ -60,58 +60,8 @@ NS_PLUGIN_X_BEGIN
         return nullptr;
     }
 
-    bool
-    SDKComponentHelper::nativeCallJava(const std::string &componentName,
-                                       const std::string &method) {
-        cc::JniMethodInfo t;
-        if (JniUtil::getStaticMethodInfo(t, SCRIPT_CALL_JAVA_BRIDGE_CLASS, method.c_str(),
-                                         "(Ljava/lang/String;)V")) {
-            jstring str = t.env->NewStringUTF(componentName.c_str());
-            t.env->CallStaticVoidMethod(t.classID, t.methodID, str);
-            t.env->DeleteLocalRef(t.classID);
-            t.env->DeleteLocalRef(str);
-            return true;
-        }
-        return false;
-    }
-
-    bool
-    SDKComponentHelper::nativeCallJava(const std::string &componentName, const std::string &method,
-                                       const std::string &arg1) {
-        cc::JniMethodInfo t;
-        if (JniUtil::getStaticMethodInfo(t, SCRIPT_CALL_JAVA_BRIDGE_CLASS, method.c_str(),
-                                         "(Ljava/lang/String;Ljava/lang/String;)V")) {
-            jstring str1 = t.env->NewStringUTF(componentName.c_str());
-            jstring str2 = t.env->NewStringUTF(arg1.c_str());
-            t.env->CallStaticVoidMethod(t.classID, t.methodID, str1, str2);
-            t.env->DeleteLocalRef(t.classID);
-            t.env->DeleteLocalRef(str1);
-            t.env->DeleteLocalRef(str2);
-            return true;
-        }
-        return false;
-    }
-
-    bool
-    SDKComponentHelper::nativeCallJava(const std::string &componentName, const std::string &method,
-                                       const std::string &arg1, const std::string &arg2) {
-        cc::JniMethodInfo t;
-        if (JniUtil::getStaticMethodInfo(t, SCRIPT_CALL_JAVA_BRIDGE_CLASS, method.c_str(),
-                                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V")) {
-            jstring str1 = t.env->NewStringUTF(componentName.c_str());
-            jstring str2 = t.env->NewStringUTF(arg1.c_str());
-            jstring str3 = t.env->NewStringUTF(arg2.c_str());
-            t.env->CallStaticVoidMethod(t.classID, t.methodID, str1, str2, str3);
-            t.env->DeleteLocalRef(t.classID);
-            t.env->DeleteLocalRef(str1);
-            t.env->DeleteLocalRef(str2);
-            t.env->DeleteLocalRef(str3);
-            return true;
-        }
-        return false;
-    }
-
     bool SDKComponentHelper::showToast(const std::string &msg, int duration) {
+#ifdef USE_REFLECTION
         cc::JniMethodInfo t;
         if (0 < duration) {
             if (JniUtil::getGlobalMethodInfo(t, g_plugin, "showToast",
@@ -128,6 +78,11 @@ NS_PLUGIN_X_BEGIN
             t.env->CallVoidMethod(g_plugin, t.methodID, str);
             t.env->DeleteLocalRef(str);
         }
+#else
+        if (0 < duration)
+            return SDKComponentHelper::nativeCallJava("showToast", msg, duration);
+        return SDKComponentHelper::nativeCallJava( "showToast",msg);
+#endif
         return false;
     }
 
@@ -144,7 +99,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "showBannerAd");
+            return SDKComponentHelper::nativeCallJava( "showBannerAd", componentName);
 #endif
         }
         return false;
@@ -163,7 +118,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "hideBannerAd");
+            return SDKComponentHelper::nativeCallJava("hideBannerAd", componentName);
 #endif
         }
         return false;
@@ -182,7 +137,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "showRewardedVideoAd");
+            return SDKComponentHelper::nativeCallJava("showRewardedVideoAd",componentName);
 #endif
         }
         return false;
@@ -202,7 +157,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "showRewardedInterstitialAd");
+            return SDKComponentHelper::nativeCallJava( "showRewardedInterstitialAd", componentName);
 #endif
         }
         return false;
@@ -221,7 +176,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "showInterstitialAd");
+            return SDKComponentHelper::nativeCallJava( "showInterstitialAd", componentName);
 #endif
         }
         return false;
@@ -240,7 +195,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "showFloatAd");
+            return SDKComponentHelper::nativeCallJava("showFloatAd", componentName);
 #endif
         }
         return false;
@@ -259,7 +214,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "hideFloatAd");
+            return SDKComponentHelper::nativeCallJava("hideFloatAd", componentName);
 #endif
         }
         return false;
@@ -278,7 +233,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "signIn");
+            return SDKComponentHelper::nativeCallJava("signIn", componentName);
 #endif
         }
         return false;
@@ -297,7 +252,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "signOut");
+            return SDKComponentHelper::nativeCallJava("signOut", componentName);
 #endif
         }
         return false;
@@ -319,7 +274,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "share", shareJsonContent);
+            return SDKComponentHelper::nativeCallJava("share", componentName, shareJsonContent);
 #endif
         }
         return false;
@@ -342,7 +297,7 @@ NS_PLUGIN_X_BEGIN
                 }
             }
 #else
-            return SDKComponentHelper::nativeCallJava(componentName, "paymentWithProductId",
+            return SDKComponentHelper::nativeCallJava("paymentWithProductId", componentName,
                                                       productId);
 #endif
         }
@@ -380,9 +335,9 @@ NS_PLUGIN_X_BEGIN
             }
 #else
             if (!event.empty())
-                return SDKComponentHelper::nativeCallJava(componentName, "logEvent", eventId,
+                return SDKComponentHelper::nativeCallJava("logEvent", componentName, eventId,
                                                           event);
-            return SDKComponentHelper::nativeCallJava(componentName, "logEvent", eventId);
+            return SDKComponentHelper::nativeCallJava("logEvent", componentName, eventId);
 #endif
         }
         return false;

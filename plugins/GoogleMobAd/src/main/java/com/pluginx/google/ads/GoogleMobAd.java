@@ -56,9 +56,7 @@ public class GoogleMobAd extends AdsWrapper {
         }));
     }
 
-    @Override
-    protected void preloadRewardedAd() {
-        super.preloadRewardedAd();
+    private void preloadRewardedAd() {
         if (AdState.Loading == rewardAdState || AdState.Loaded == rewardAdState) {
             Log.d(TAG, "RewardedAd loading or loaded");
             return;
@@ -74,7 +72,7 @@ public class GoogleMobAd extends AdsWrapper {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                 // Handle the error.
-                Log.d(TAG, "RewardedVideoAd " + loadAdError.getMessage());
+                Log.w(TAG, "RewardedVideoAd " + loadAdError.getMessage());
                 mRewardedAd = null;
                 rewardAdState = AdState.None;
             }
@@ -96,7 +94,7 @@ public class GoogleMobAd extends AdsWrapper {
                     @Override
                     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
                         super.onAdFailedToShowFullScreenContent(adError);
-                        Log.d(TAG, "RewardedVideoAd failed to show.");
+                        Log.w(TAG, "RewardedVideoAd failed to show.");
                     }
 
                     @Override
@@ -140,9 +138,7 @@ public class GoogleMobAd extends AdsWrapper {
         }
     }
 
-    @Override
-    protected void preloadInterstitialAd() {
-        super.preloadInterstitialAd();
+    private void preloadInterstitialAd() {
         if (AdState.Loading == interstitialAdState || AdState.Loaded == interstitialAdState) {
             Log.d(TAG, "Interstitial loading or loaded");
             return;
@@ -167,7 +163,7 @@ public class GoogleMobAd extends AdsWrapper {
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                 // Handle the error
-                Log.i(TAG, "InterstitialAd " + loadAdError.getMessage());
+                Log.w(TAG, "InterstitialAd " + loadAdError.getMessage());
                 mInterstitialAd = null;
                 interstitialAdState = AdState.None;
             }
@@ -182,7 +178,7 @@ public class GoogleMobAd extends AdsWrapper {
                     @Override
                     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
                         super.onAdFailedToShowFullScreenContent(adError);
-                        Log.d(TAG, "InterstitialAd failed to show.");
+                        Log.w(TAG, "InterstitialAd failed to show.");
                     }
 
                     @Override
@@ -228,11 +224,9 @@ public class GoogleMobAd extends AdsWrapper {
         }
     }
 
-    @Override
-    protected void preloadRewardedInterstitialAd() {
-        super.preloadRewardedInterstitialAd();
+    private void preloadRewardedInterstitialAd() {
         if (AdState.Loading == rewardInterstitialAdState || AdState.Loaded == rewardInterstitialAdState) {
-            Log.d(TAG, "RewardInterstitialAd loading or loaded");
+            Log.w(TAG, "RewardInterstitialAd loading or loaded");
             return;
         }
         String adId = getAdUnitId(AdType.RewardedInterstitial);
@@ -270,7 +264,7 @@ public class GoogleMobAd extends AdsWrapper {
                     @Override
                     public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
                         super.onAdFailedToShowFullScreenContent(adError);
-                        Log.d(TAG, "RewardedInterstitialAd failed to show.");
+                        Log.w(TAG, "RewardedInterstitialAd failed to show.");
                     }
 
                     @Override
@@ -322,7 +316,7 @@ public class GoogleMobAd extends AdsWrapper {
                 mBannerAdView = null;
             }
             if (AdState.Loading == bannerAdState || AdState.Loaded == bannerAdState) {
-                Log.d(TAG, "Banner loading or loaded");
+                Log.w(TAG, "Banner loading or loaded");
                 return;
             }
             String adId = getAdUnitId(AdType.Banner);
@@ -359,7 +353,7 @@ public class GoogleMobAd extends AdsWrapper {
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
-                        Log.d(TAG, "BannerAd was adFailedToLoad.");
+                        Log.w(TAG, "BannerAd was adFailedToLoad.");
                         bannerAdState = AdState.None;
                     }
 
